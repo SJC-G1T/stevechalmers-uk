@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coffee Brew Calculator — stevechalmers.uk</title>
+  <meta name="description" content="Get the right ratio and step-by-step brew instructions for V60, French Press, AeroPress, Moka Pot, and Chemex. No signup. Works offline.">
+  <meta property="og:title" content="Coffee Brew Calculator">
+  <meta property="og:description" content="Ratio, brew time, and step-by-step instructions for your brew method. No signup.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://stevechalmers.uk/coffee">
+  <link rel="manifest" href="/coffee/manifest.json">
+  <link rel="apple-touch-icon" href="/coffee/icon-192.png">
+  <meta name="theme-color" content="#08080d">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #08080d;
+      --surface:     #13131f;
+      --surface2:    #1a1a2a;
+      --border:      #1e1e2e;
+      --accent:      #D4728C;
+      --accent-dim:  rgba(212, 114, 140, 0.12);
+      --accent-glow: rgba(212, 114, 140, 0.25);
+      --text:        #e8e8f0;
+      --muted:       #8888aa;
+      --radius:      12px;
+      --success:     #5db88a;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: 60px;
+    }
+
+    /* ── Nav ── */
+    nav {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: -0.01em;
+      transition: color 0.2s;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-logo:hover { color: var(--text); }
+    .nav-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 48px 0 40px;
+      text-align: center;
+    }
+    .hero-icon {
+      font-size: 3rem;
+      line-height: 1;
+      margin-bottom: 16px;
+      display: block;
+    }
+    .hero h1 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 10px;
+    }
+    .hero p {
+      font-size: 1rem;
+      color: var(--muted);
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+
+    /* ── Form ── */
+    .field { margin-bottom: 20px; }
+    .field:last-child { margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    label .hint {
+      font-weight: 400;
+      color: var(--muted);
+      margin-left: 6px;
+    }
+
+    input[type="number"],
+    select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text);
+      appearance: none;
+      -webkit-appearance: none;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input[type="number"]:focus,
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+    input[type="number"]::-webkit-inner-spin-button { opacity: 0.4; }
+
+    .select-wrapper {
+      position: relative;
+    }
+    .select-wrapper::after {
+      content: '';
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 6px solid var(--muted);
+      pointer-events: none;
+    }
+    select { cursor: pointer; }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    /* ── Ratio display ── */
+    .ratio-display {
+      background: var(--accent-dim);
+      border: 1px solid rgba(212, 114, 140, 0.3);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+    }
+    .ratio-label { font-size: 0.85rem; color: var(--muted); }
+    .ratio-value {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: -0.02em;
+    }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 14px 24px;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+      letter-spacing: -0.01em;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 0;
+    }
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    /* ── Results ── */
+    #results { display: none; }
+    #results.visible { display: block; }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .result-method {
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .result-meta {
+      display: flex;
+      gap: 16px;
+    }
+    .meta-chip {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .meta-chip span { color: var(--text); }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .step {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(212, 114, 140, 0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-top: 1px;
+    }
+    .step-text {
+      font-size: 0.95rem;
+      color: var(--text);
+      line-height: 1.5;
+      padding-top: 4px;
+    }
+    .step-text strong { color: var(--accent); }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--success);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      opacity: 0;
+      transition: transform 0.3s, opacity 0.3s;
+      pointer-events: none;
+      z-index: 100;
+      white-space: nowrap;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* ── Save indicator ── */
+    .save-note {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 10px;
+    }
+    .save-note span { color: var(--accent); }
+
+    /* ── Back link ── */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin: 32px 0 0;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--accent); }
+
+    /* ── Responsive ── */
+    @media (max-width: 480px) {
+      .row { grid-template-columns: 1fr; }
+      .result-meta { flex-wrap: wrap; }
+      .btn-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav>
+    <a href="/" class="nav-logo">stevechalmers<span>.uk</span></a>
+    <div class="nav-title">☕ Coffee</div>
+  </nav>
+
+  <div class="container">
+
+    <!-- Hero -->
+    <div class="hero">
+      <span class="hero-icon">☕</span>
+      <h1>Coffee Brew Calculator</h1>
+      <p>Pick your method. Enter your coffee and water. Get the right ratio and exact steps.</p>
+    </div>
+
+    <!-- Inputs -->
+    <div class="card">
+      <div class="card-title">Your brew</div>
+
+      <div class="field">
+        <label>Brew method</label>
+        <div class="select-wrapper">
+          <select id="method">
+            <option value="v60">V60 Pour Over</option>
+            <option value="french">French Press</option>
+            <option value="aeropress">AeroPress</option>
+            <option value="moka">Moka Pot</option>
+            <option value="chemex">Chemex</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Coffee <span class="hint">grams</span></label>
+          <input type="number" id="coffee" min="1" max="500" placeholder="20" inputmode="decimal">
+        </div>
+        <div class="field">
+          <label>Water <span class="hint">ml</span></label>
+          <input type="number" id="water" min="1" max="2000" placeholder="300" inputmode="decimal">
+        </div>
+      </div>
+
+      <div class="ratio-display" id="ratioDisplay" style="display:none;">
+        <div class="ratio-label">Ratio</div>
+        <div class="ratio-value" id="ratioValue">1:15</div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="card" style="padding:20px;">
+      <button class="btn-primary" id="brewBtn" onclick="calculate()">Calculate brew</button>
+      <div class="btn-row" style="margin-top:12px;">
+        <button class="btn-secondary" onclick="saveRatio()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17,21 17,13 7,13 7,21"/><polyline points="7,3 7,8 15,8"/></svg>
+          Save ratio
+        </button>
+        <button class="btn-secondary" id="shareBtn" onclick="share()" style="display:none;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Share
+        </button>
+      </div>
+      <div class="save-note" id="saveNote" style="display:none;">Ratio saved — will pre-fill next visit</div>
+    </div>
+
+    <!-- Results -->
+    <div class="card" id="results">
+      <div class="result-header">
+        <div class="result-method" id="resultMethod"></div>
+        <div class="result-meta">
+          <div class="meta-chip">Ratio: <span id="resultRatio"></span></div>
+          <div class="meta-chip">Time: <span id="resultTime"></span></div>
+        </div>
+      </div>
+      <div class="steps" id="stepsContainer"></div>
+    </div>
+
+    <a href="/" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15,18 9,12 15,6"/></svg>
+      All apps
+    </a>
+
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ── Brew data ──────────────────────────────────────────────────────────────
+    const BREWS = {
+      v60: {
+        name: 'V60 Pour Over',
+        defaultRatio: 15,
+        brewTime: '3:00–3:30',
+        getSteps: (coffee, water) => {
+          const bloom = Math.round(coffee * 2);
+          const pour1 = Math.round(water * 0.4);
+          const pour2 = Math.round(water * 0.3);
+          const pour3 = water - bloom - pour1 - pour2;
+          return [
+            `Rinse your V60 filter with hot water. Discard the rinse water. This removes papery taste and warms the dripper.`,
+            `Add <strong>${coffee}g</strong> of medium-fine ground coffee to the filter. Give it a gentle shake to level it.`,
+            `Start your timer. Pour <strong>${bloom}ml</strong> of water (93°C / 200°F) evenly over the grounds. Wait 30 seconds for the bloom.`,
+            `At 0:30, pour <strong>${pour1}ml</strong> in a slow spiral from the centre outward. Keep the water level consistent.`,
+            `At 1:00, add <strong>${pour2}ml</strong> continuing the spiral pour. Aim to maintain flow throughout.`,
+            `At 1:30, add the remaining <strong>${pour3}ml</strong> to reach your total of ${water}ml. Keep pouring slowly.`,
+            `Allow the coffee to drain fully. Total draw-down should finish by 3:00–3:30.`,
+          ];
+        }
+      },
+      french: {
+        name: 'French Press',
+        defaultRatio: 15,
+        brewTime: '4:00',
+        getSteps: (coffee, water) => {
+          const stir = Math.round(water * 0.5);
+          return [
+            `Preheat your French Press with hot water. Discard and dry.`,
+            `Add <strong>${coffee}g</strong> of coarsely ground coffee. Coarse grind is essential — fine grind makes it bitter and hard to press.`,
+            `Start your timer. Pour <strong>${water}ml</strong> of water at 93°C / 200°F over the grounds. Make sure all coffee is saturated.`,
+            `Give it a gentle stir to ensure all grounds are wet. Place the lid on (plunger up) — do not press yet.`,
+            `Steep for <strong>4 minutes</strong>. Don't rush this — full steeping time gives even extraction.`,
+            `Slowly press the plunger down with steady, even pressure. If it resists, stop — your grind may be too fine.`,
+            `Pour immediately into your cup. Don't leave coffee sitting in the press or it will over-extract and turn bitter.`,
+          ];
+        }
+      },
+      aeropress: {
+        name: 'AeroPress',
+        defaultRatio: 12,
+        brewTime: '1:30–2:00',
+        getSteps: (coffee, water) => {
+          const coffee_adj = Math.min(coffee, 30); // AeroPress max ~30g
+          const water_adj  = Math.round(coffee_adj * (water / coffee));
+          return [
+            `Set up AeroPress in inverted position (plunger in, chamber upside down). This gives more control over steep time.`,
+            `Rinse a paper filter in the filter cap with hot water. Set aside.`,
+            `Add <strong>${coffee_adj}g</strong> of medium-fine ground coffee. AeroPress works best between 15–30g.`,
+            `Start timer. Add <strong>${water_adj}ml</strong> of water at 85–90°C / 185–195°F (slightly cooler than other methods).`,
+            `Stir 10 times to ensure full saturation. Steep for <strong>1 minute</strong>.`,
+            `Attach the filter cap. Carefully flip onto your mug. Press slowly and steadily — aim for 30 seconds of pressing.`,
+            `Stop pressing when you hear a hiss. This signals you've extracted all the coffee. Dilute with hot water to taste.`,
+          ];
+        }
+      },
+      moka: {
+        name: 'Moka Pot',
+        defaultRatio: 7,
+        brewTime: '5:00–7:00',
+        getSteps: (coffee, water) => {
+          return [
+            `Fill the bottom chamber with <strong>${water}ml</strong> of hot (not boiling) water up to the pressure valve. Using pre-heated water prevents the coffee from burning during heating.`,
+            `Fill the filter basket with <strong>${coffee}g</strong> of finely ground coffee — finer than espresso but not quite powder. Level the surface gently, don't tamp.`,
+            `Screw the top and bottom chambers together firmly. Handle with care — the bottom chamber will be hot.`,
+            `Place on medium-low heat. Keep the lid open so you can watch the extraction.`,
+            `Coffee will slowly flow into the upper chamber. When you hear a gurgling sound and see pale, bubbly coffee emerging, remove from heat immediately.`,
+            `Run the bottom of the pot under cold water to stop extraction. This prevents a bitter, burnt taste.`,
+            `Pour and serve immediately. Moka pot coffee is strong and concentrated — add hot water or milk to taste.`,
+          ];
+        }
+      },
+      chemex: {
+        name: 'Chemex',
+        defaultRatio: 16,
+        brewTime: '4:00–5:00',
+        getSteps: (coffee, water) => {
+          const bloom = Math.round(coffee * 2.5);
+          const pour1 = Math.round(water * 0.35);
+          const pour2 = Math.round(water * 0.35);
+          const pour3 = water - bloom - pour1 - pour2;
+          return [
+            `Place the Chemex filter (three-layer side toward the spout) in the top. Rinse thoroughly with hot water — Chemex filters are thick and need a good rinse. Discard rinse water.`,
+            `Add <strong>${coffee}g</strong> of medium-coarse ground coffee. Chemex needs a slightly coarser grind than V60 due to its thicker filter.`,
+            `Start timer. Bloom: pour <strong>${bloom}ml</strong> of water at 93°C / 200°F in a spiral pattern. Wait 45 seconds — Chemex grounds need longer to bloom.`,
+            `At 0:45, slowly pour <strong>${pour1}ml</strong> in a steady spiral from centre outward. Keep water level well below the top of the filter.`,
+            `At 2:00, add <strong>${pour2}ml</strong> continuing the slow spiral pour. Consistency of pour speed matters here.`,
+            `At 3:15, add the remaining <strong>${pour3}ml</strong>. Total water: ${water}ml.`,
+            `Allow full draw-down. Total brew time 4–5 minutes. The thicker Chemex filter gives a cleaner, brighter cup than other pour-overs.`,
+          ];
+        }
+      }
+    };
+
+    // ── State ─────────────────────────────────────────────────────────────────
+    let lastMethod = null;
+    let lastCoffee = null;
+    let lastWater  = null;
+
+    // ── Init: load saved ratio ─────────────────────────────────────────────────
+    window.addEventListener('DOMContentLoaded', () => {
+      const saved = localStorage.getItem('coffee_saved');
+      if (saved) {
+        try {
+          const { method, coffee, water } = JSON.parse(saved);
+          if (method) document.getElementById('method').value = method;
+          if (coffee) document.getElementById('coffee').value = coffee;
+          if (water)  document.getElementById('water').value  = water;
+          updateRatioDisplay();
+        } catch(e) {}
+      }
+
+      // Live ratio update on input
+      ['coffee', 'water'].forEach(id => {
+        document.getElementById(id).addEventListener('input', updateRatioDisplay);
+      });
+    });
+
+    // ── Live ratio ─────────────────────────────────────────────────────────────
+    function updateRatioDisplay() {
+      const c = parseFloat(document.getElementById('coffee').value);
+      const w = parseFloat(document.getElementById('water').value);
+      const display = document.getElementById('ratioDisplay');
+      if (c > 0 && w > 0) {
+        const ratio = (w / c).toFixed(1);
+        document.getElementById('ratioValue').textContent = `1:${ratio}`;
+        display.style.display = 'flex';
+      } else {
+        display.style.display = 'none';
+      }
+    }
+
+    // ── Calculate ──────────────────────────────────────────────────────────────
+    function calculate() {
+      const method = document.getElementById('method').value;
+      const coffee = parseFloat(document.getElementById('coffee').value);
+      const water  = parseFloat(document.getElementById('water').value);
+
+      if (!coffee || !water || coffee <= 0 || water <= 0) {
+        showToast('Enter coffee and water amounts first', '#D4728C');
+        return;
+      }
+
+      const brew = BREWS[method];
+      lastMethod = method;
+      lastCoffee = coffee;
+      lastWater  = water;
+
+      // Populate results
+      const ratio = (water / coffee).toFixed(1);
+      document.getElementById('resultMethod').textContent  = brew.name;
+      document.getElementById('resultRatio').textContent   = `1:${ratio}`;
+      document.getElementById('resultTime').textContent    = brew.brewTime;
+
+      const stepsContainer = document.getElementById('stepsContainer');
+      stepsContainer.innerHTML = '';
+      const steps = brew.getSteps(coffee, water);
+      steps.forEach((text, i) => {
+        stepsContainer.innerHTML += `
+          <div class="step">
+            <div class="step-num">${i + 1}</div>
+            <div class="step-text">${text}</div>
+          </div>`;
+      });
+
+      const results = document.getElementById('results');
+      results.classList.add('visible');
+      document.getElementById('shareBtn').style.display = 'flex';
+
+      setTimeout(() => {
+        results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+
+    // ── Save ratio ─────────────────────────────────────────────────────────────
+    function saveRatio() {
+      const method = document.getElementById('method').value;
+      const coffee = document.getElementById('coffee').value;
+      const water  = document.getElementById('water').value;
+
+      if (!coffee || !water) {
+        showToast('Enter amounts first', '#D4728C');
+        return;
+      }
+
+      localStorage.setItem('coffee_saved', JSON.stringify({ method, coffee, water }));
+
+      const saveNote = document.getElementById('saveNote');
+      saveNote.style.display = 'block';
+      showToast('Ratio saved — will pre-fill next visit');
+    }
+
+    // ── Share ──────────────────────────────────────────────────────────────────
+    function share() {
+      if (!lastMethod) return;
+      const brew  = BREWS[lastMethod];
+      const ratio = (lastWater / lastCoffee).toFixed(1);
+      const text  = `My ${brew.name} ratio: 1:${ratio} (${lastCoffee}g coffee / ${lastWater}ml water), ${brew.brewTime} brew — stevechalmers.uk/coffee`;
+
+      if (navigator.share) {
+        navigator.share({ text }).catch(() => copyToClipboard(text));
+      } else {
+        copyToClipboard(text);
+      }
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard'));
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity  = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('Copied to clipboard');
+      }
+    }
+
+    // ── Toast ──────────────────────────────────────────────────────────────────
+    function showToast(msg, color) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.style.background = color || 'var(--success)';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    // ── Service Worker ─────────────────────────────────────────────────────────
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/coffee/sw.js').catch(() => {});
+    }
+  </script>
+
+</body>
+</html>
