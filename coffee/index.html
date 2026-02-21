@@ -472,7 +472,7 @@
             <input type="number" id="espYield" min="1" max="200" placeholder="36" inputmode="decimal">
           </div>
         </div>
-        <p class="esp-note">Weigh your yield into the cup. Standard double: 18g in → 36g out (1:2 ratio).</p>
+        <p class="esp-note">Place your cup on the scale before pulling. <strong>Standard double: 18g in → 36g out (1:2 ratio), 25–30s.</strong> Prefer a longer, brighter shot? Try 18g in → 54g out (1:3) — still great, just lighter in body. Avoid going much beyond 1:3 or it starts tasting thin.</p>
       </div>
 
       <div class="ratio-display" id="ratioDisplay" style="display:none;">
@@ -546,31 +546,42 @@
       grind: {
         desc: 'Very fine — finer than any other method. Think powdered sugar. Even small adjustments make a big difference.',
         dialSteps: [
-          ['Shot runs fast (under 20s)', 'Grind finer — one small step, then retry'],
-          ['Shot runs in 25–30s, tastes balanced', "You're dialled in — note your setting"],
-          ['Shot runs slow (over 35s)', 'Grind coarser — one small step, then retry'],
-          ['Tastes sour or sharp', 'Under-extracted: grind finer, or try a slightly larger dose'],
-          ['Tastes bitter or harsh', 'Over-extracted: grind coarser, or reduce your yield'],
+          ['Shot runs fast (under 20s) or pours pale and watery', 'Grind finer — one small step, then retry. Fast + watery = under-extracted'],
+          ['Shot runs in 25–30s, tastes balanced', "You're dialled in — note your grind setting and stick with it"],
+          ['Shot runs slow (over 35s) or barely drips', 'Grind coarser — one small step. If very slow, also check your tamp pressure'],
+          ['Tastes sour, sharp, or hollow', 'Under-extracted: grind finer, or increase dose by 0.5–1g'],
+          ['Tastes bitter, harsh, or ashy', 'Over-extracted: grind coarser, or reduce your target yield slightly'],
+          ['Tastes thin and weak despite correct time', 'Increase dose (try 19–20g) or reduce target yield to tighten the ratio'],
         ],
         tips: [
+          'For a double espresso, start with 18g in and aim for 36g out (1:2). If you prefer a brighter, lighter-bodied shot, try 18g in → 45–54g out — still well within modern specialty practice',
           'Fresh beans make the biggest difference — a coffee subscription (beans roasted to order) is immediately noticeable vs. supermarket pre-ground',
           'Keep beans in an airtight container at room temperature, away from light',
-          'Dial in with a single-origin or espresso-designed blend — flavoured beans make it much harder to learn',
-          'A cheap scale is your best investment: weigh dose and yield, not by eye',
-          'Consistency is everything: same dose, same tamp pressure, same grind = repeatable shots',
-          'When a shot tastes off, change only one variable at a time',
+          'Dial in with a single-origin or espresso-designed blend — flavoured beans make it much harder to taste what\'s going on',
+          'A cheap scale is your best investment: weigh dose and yield in grams, not by eye or volume',
+          'Consistency is everything: same dose, same tamp pressure, same grind setting = repeatable shots',
+          'When a shot tastes off, change only one variable at a time — grind first, then dose, then yield',
         ],
       },
       getSteps(dose, yld) {
         const ratio = (yld / dose).toFixed(1);
+        const ratioNum = yld / dose;
+        let styleNote = '';
+        if (ratioNum <= 2.2) {
+          styleNote = 'This is a classic ristretto-to-double range — rich, full-bodied, concentrated.';
+        } else if (ratioNum <= 2.8) {
+          styleNote = 'This is a longer double / modern specialty style — bright, slightly lighter body.';
+        } else {
+          styleNote = 'This is in lungo territory — very light body. Great for some beans, but watch for thinness.';
+        }
         return [
           `Purge your group head with a short burst of hot water to clear old grounds and stabilise temperature.`,
-          `Weigh <strong>${dose}g</strong> of freshly ground coffee into your portafilter basket. Grind as close to pulling as possible — stale ground coffee extracts unevenly.`,
-          `Distribute the grounds evenly. Tap the portafilter gently and use a finger or distribution tool to level. Even distribution prevents channelling.`,
-          `Tamp firmly and level. Apply steady downward pressure — aim for a flat, even puck. Don't tilt the tamper.`,
-          `Lock the portafilter in and start your timer immediately. Begin extraction.`,
-          `Target yield: <strong>${yld}g</strong> in the cup (ratio 1:${ratio}). Stop extraction when your target weight is reached. Aim for <strong>25–30 seconds</strong> total.`,
-          `If it ran fast (under 20s) or slow (over 35s), adjust your grind by one step and retry. Taste the shot and use the grind guide to diagnose — one change at a time.`,
+          `Weigh <strong>${dose}g</strong> of freshly ground coffee into your portafilter basket. Grind as close to pulling as possible — pre-ground coffee stales quickly and extracts unevenly.`,
+          `Distribute the grounds evenly. Tap the portafilter gently and use a finger or distribution tool to level the puck. Even distribution prevents channelling (water finding an easy path through).`,
+          `Tamp firmly and level. Apply steady downward pressure — aim for a flat, even puck. Don't twist or tilt the tamper.`,
+          `Place your cup on the scale and tare to zero. Lock the portafilter in and start your timer immediately. Begin extraction.`,
+          `Target yield: <strong>${yld}g</strong> in the cup — stop when the scale hits that weight. Ratio 1:${ratio}. ${styleNote} Aim for <strong>25–30 seconds</strong> total extraction time.`,
+          `If it ran fast (under 20s) or slow (over 35s), adjust your grind by one small step and retry. Taste before adjusting — use the grind guide below to diagnose. One change at a time.`,
         ];
       }
     },
