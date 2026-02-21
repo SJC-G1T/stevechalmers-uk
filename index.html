@@ -40,6 +40,17 @@
       overflow-x: hidden;
     }
 
+    /* ── Global particle canvas ── */
+    #global-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.45;
+    }
+
     /* ── Mouse glow overlay ── */
     #glow {
       position: fixed;
@@ -591,6 +602,9 @@
 </head>
 <body>
 
+  <!-- Global particle canvas -->
+  <canvas id="global-canvas" aria-hidden="true"></canvas>
+
   <!-- Mouse glow -->
   <div id="glow"></div>
 
@@ -917,7 +931,91 @@
 
     revealEls.forEach(el => io.observe(el));
 
-    // ── 6. Screenshots section particle canvas ────────────────────────────────
+    // ── 6. Global background particle canvas ─────────────────────────────────
+    (function() {
+      const canvas = document.getElementById('global-canvas');
+      if (!canvas || reducedMotion) return;
+      const ctx = canvas.getContext('2d');
+
+      // Sparse grid — fewer dots than the screenshots section, much more subtle
+      const COLS = 22, ROWS = 12;
+      let dots = [];
+      let running = true;
+
+      function resize() {
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+        buildGrid();
+      }
+
+      function buildGrid() {
+        dots = [];
+        const cw = canvas.width, ch = canvas.height;
+        const gapX = cw / COLS, gapY = ch / ROWS;
+        for (let r = 0; r <= ROWS; r++) {
+          for (let c = 0; c <= COLS; c++) {
+            dots.push({
+              bx: c * gapX,
+              by: r * gapY,
+              ox: (Math.random() - 0.5) * gapX * 0.5,
+              oy: (Math.random() - 0.5) * gapY * 0.5,
+              phase: Math.random() * Math.PI * 2,
+              speed: 0.3 + Math.random() * 0.5,
+              size:  0.6 + Math.random() * 1.0,
+            });
+          }
+        }
+      }
+
+      resize();
+      window.addEventListener('resize', resize);
+      document.addEventListener('visibilitychange', () => { running = !document.hidden; });
+
+      let t = 0;
+      function draw() {
+        if (!running) { requestAnimationFrame(draw); return; }
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        t += 0.008; // slightly slower than section canvas
+
+        for (const d of dots) {
+          const pulse = 0.5 + 0.5 * Math.sin(t * d.speed + d.phase);
+          const alpha = 0.03 + pulse * 0.07; // 0.03 → 0.10 — very faint
+          const x = d.bx + d.ox + Math.sin(t * d.speed * 0.5 + d.phase) * 2.5;
+          const y = d.by + d.oy + Math.cos(t * d.speed * 0.4 + d.phase) * 2;
+          ctx.beginPath();
+          ctx.arc(x, y, d.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(212,114,140,${alpha.toFixed(3)})`;
+          ctx.fill();
+        }
+
+        // Faint connecting lines between immediate neighbours
+        ctx.lineWidth = 0.4;
+        for (let i = 0; i < dots.length; i++) {
+          const a = dots[i];
+          const ax = a.bx + a.ox;
+          const ay = a.by + a.oy;
+          for (let j = i + 1; j < dots.length; j++) {
+            const b = dots[j];
+            const bx = b.bx + b.ox;
+            const by = b.by + b.oy;
+            const dx = ax - bx, dy = ay - by;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < canvas.width / COLS * 1.5) {
+              ctx.strokeStyle = `rgba(212,114,140,0.018)`;
+              ctx.beginPath();
+              ctx.moveTo(ax, ay);
+              ctx.lineTo(bx, by);
+              ctx.stroke();
+            }
+          }
+        }
+
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    // ── 7. Screenshots section particle canvas (denser, higher opacity) ──────
     (function() {
       const canvas = document.getElementById('screenshots-canvas');
       if (!canvas || reducedMotion) return;
