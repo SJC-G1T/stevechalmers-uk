@@ -48,7 +48,7 @@
       height: 100%;
       pointer-events: none;
       z-index: 0;
-      opacity: 0.45;
+      opacity: 1;
     }
 
     /* ── Mouse glow overlay ── */
@@ -979,7 +979,7 @@
 
         for (const d of dots) {
           const pulse = 0.5 + 0.5 * Math.sin(t * d.speed + d.phase);
-          const alpha = 0.03 + pulse * 0.07; // 0.03 → 0.10 — very faint
+          const alpha = 0.12 + pulse * 0.18; // 0.12 → 0.30 — clearly visible
           const x = d.bx + d.ox + Math.sin(t * d.speed * 0.5 + d.phase) * 2.5;
           const y = d.by + d.oy + Math.cos(t * d.speed * 0.4 + d.phase) * 2;
           ctx.beginPath();
@@ -1001,7 +1001,7 @@
             const dx = ax - bx, dy = ay - by;
             const dist = Math.sqrt(dx*dx + dy*dy);
             if (dist < canvas.width / COLS * 1.5) {
-              ctx.strokeStyle = `rgba(212,114,140,0.018)`;
+              ctx.strokeStyle = `rgba(212,114,140,0.07)`;
               ctx.beginPath();
               ctx.moveTo(ax, ay);
               ctx.lineTo(bx, by);
