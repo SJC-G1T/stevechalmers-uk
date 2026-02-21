@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Metrics — stevechalmers.uk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #08080d;
+      --surface:    #13131f;
+      --border:     #1e1e2e;
+      --accent:     #D4728C;
+      --accent-dim: rgba(212,114,140,0.12);
+      --text:       #e8e8f0;
+      --muted:      #8888aa;
+      --green:      #4ade80;
+      --radius:     12px;
+    }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      padding: 40px 24px 80px;
+    }
+
+    /* ── Lock screen ── */
+    #lock {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .lock-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+    }
+    .lock-box h1 { font-size: 1.2rem; font-weight: 600; margin-bottom: 6px; }
+    .lock-box p  { font-size: 0.88rem; color: var(--muted); margin-bottom: 24px; }
+    .lock-box input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 1rem;
+      outline: none;
+      margin-bottom: 12px;
+      transition: border-color 0.2s;
+    }
+    .lock-box input:focus { border-color: var(--accent); }
+    .lock-box button {
+      width: 100%;
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .lock-box button:hover { opacity: 0.88; }
+    .lock-error {
+      font-size: 0.82rem;
+      color: var(--accent);
+      margin-top: 8px;
+      min-height: 20px;
+    }
+
+    /* ── Layout ── */
+    .container { max-width: 900px; margin: 0 auto; }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .header-left h1 { font-size: 1.4rem; font-weight: 700; }
+    .header-left p  { font-size: 0.88rem; color: var(--muted); margin-top: 2px; }
+    .refresh-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 16px;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .refresh-btn:hover { color: var(--text); border-color: var(--accent); }
+
+    /* ── Range selector ── */
+    .range-pills {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+    .range-pill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-family: inherit;
+      font-size: 0.82rem;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .range-pill:hover { color: var(--text); }
+    .range-pill.active {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* ── Stat cards ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      border-top: 2px solid var(--accent);
+    }
+    .stat-label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+    .stat-value { font-size: 2rem; font-weight: 700; line-height: 1; }
+    .stat-sub   { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+
+    /* ── Sparkline ── */
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+    .chart-card h2 { font-size: 0.9rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 20px; }
+    .sparkline-wrap { position: relative; height: 80px; }
+    svg.sparkline { width: 100%; height: 100%; overflow: visible; }
+
+    /* ── Tables ── */
+    .tables-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    @media (max-width: 640px) { .tables-grid { grid-template-columns: 1fr; } }
+
+    .table-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .table-card h2 { font-size: 0.9rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px; }
+    .table-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.88rem;
+      gap: 12px;
+    }
+    .table-row:last-child { border-bottom: none; }
+    .table-row-bar {
+      position: relative;
+      flex: 1;
+    }
+    .bar-bg {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: width 0.6s ease;
+    }
+    .row-label { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
+    .row-value { color: var(--muted); font-size: 0.82rem; white-space: nowrap; }
+
+    /* ── Loading / error states ── */
+    .loading {
+      text-align: center;
+      padding: 60px 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .loading-dot {
+      display: inline-block;
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      margin: 0 3px;
+      animation: bounce 1.2s infinite;
+    }
+    .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40%           { transform: scale(1);   opacity: 1; }
+    }
+
+    .error-msg {
+      background: rgba(212,114,140,0.08);
+      border: 1px solid rgba(212,114,140,0.25);
+      border-radius: 8px;
+      padding: 16px 20px;
+      color: var(--accent);
+      font-size: 0.88rem;
+      margin-bottom: 24px;
+    }
+
+    #dashboard { display: none; }
+    .live-dot {
+      display: inline-block;
+      width: 7px; height: 7px;
+      background: var(--green);
+      border-radius: 50%;
+      margin-right: 6px;
+      box-shadow: 0 0 6px var(--green);
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Lock screen -->
+  <div id="lock">
+    <div class="lock-box">
+      <h1>stevechalmers.uk</h1>
+      <p>Metrics — private</p>
+      <input type="password" id="pw-input" placeholder="Password" autocomplete="current-password">
+      <button id="pw-btn">Unlock</button>
+      <div class="lock-error" id="pw-error"></div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard">
+    <div class="container">
+
+      <header>
+        <div class="header-left">
+          <h1><span class="live-dot"></span>Metrics</h1>
+          <p id="last-updated">Loading...</p>
+        </div>
+        <button class="refresh-btn" id="refresh-btn">Refresh</button>
+      </header>
+
+      <div class="range-pills">
+        <button class="range-pill active" data-days="1">Today</button>
+        <button class="range-pill" data-days="7">7 days</button>
+        <button class="range-pill" data-days="30">30 days</button>
+      </div>
+
+      <div id="content">
+        <div class="loading">
+          <span class="loading-dot"></span>
+          <span class="loading-dot"></span>
+          <span class="loading-dot"></span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // ── Password protection ────────────────────────────────────────────────────
+    const PASS_HASH = '0c1a1744cac7c644f35ee53f2173d251ae89bbacf00e67a9b80f206198aab3d1';
+    const SESSION_KEY = 'metrics_auth';
+
+    async function hashPassword(pw) {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function tryUnlock(pw) {
+      const hash = await hashPassword(pw);
+      if (hash === PASS_HASH) {
+        sessionStorage.setItem(SESSION_KEY, '1');
+        document.getElementById('lock').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        loadData();
+        return true;
+      }
+      return false;
+    }
+
+    document.getElementById('pw-btn').addEventListener('click', async () => {
+      const pw = document.getElementById('pw-input').value;
+      const ok = await tryUnlock(pw);
+      if (!ok) {
+        document.getElementById('pw-error').textContent = 'Incorrect password';
+        document.getElementById('pw-input').value = '';
+        document.getElementById('pw-input').focus();
+      }
+    });
+    document.getElementById('pw-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('pw-btn').click();
+    });
+
+    // Auto-unlock if already authenticated this session
+    if (sessionStorage.getItem(SESSION_KEY)) {
+      document.getElementById('lock').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+    }
+
+    // ── Data loading ───────────────────────────────────────────────────────────
+    let currentDays = 1;
+
+    document.querySelectorAll('.range-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.range-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        currentDays = parseInt(pill.dataset.days);
+        loadData();
+      });
+    });
+
+    document.getElementById('refresh-btn').addEventListener('click', loadData);
+
+    async function loadData() {
+      const content = document.getElementById('content');
+      content.innerHTML = `<div class="loading">
+        <span class="loading-dot"></span>
+        <span class="loading-dot"></span>
+        <span class="loading-dot"></span>
+      </div>`;
+
+      try {
+        const res = await fetch(`/metrics/api?days=${currentDays}`);
+        if (!res.ok) throw new Error(`API error: ${res.status}`);
+        const data = await res.json();
+        renderDashboard(data);
+        document.getElementById('last-updated').textContent =
+          'Updated ' + new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      } catch (err) {
+        content.innerHTML = `<div class="error-msg">Failed to load data: ${err.message}<br>
+          Make sure the metrics Worker is deployed.</div>`;
+      }
+    }
+
+    // ── Render ─────────────────────────────────────────────────────────────────
+    function renderDashboard(data) {
+      const content = document.getElementById('content');
+
+      const totalRequests  = data.totals?.requests  ?? 0;
+      const uniqueVisitors = data.totals?.visitors  ?? 0;
+      const pageViews      = data.totals?.pageViews ?? 0;
+      const bandwidthMB    = ((data.totals?.bytes ?? 0) / 1024 / 1024).toFixed(1);
+
+      const topPages    = data.topPages    ?? [];
+      const topCountries= data.topCountries?? [];
+      const daily       = data.daily       ?? [];
+
+      content.innerHTML = `
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Requests</div>
+            <div class="stat-value">${fmt(totalRequests)}</div>
+            <div class="stat-sub">${rangeLabel()}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Unique Visitors</div>
+            <div class="stat-value">${fmt(uniqueVisitors)}</div>
+            <div class="stat-sub">${rangeLabel()}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Page Views</div>
+            <div class="stat-value">${fmt(pageViews)}</div>
+            <div class="stat-sub">HTML requests only</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Bandwidth</div>
+            <div class="stat-value">${bandwidthMB}<span style="font-size:1rem;font-weight:400;color:var(--muted)"> MB</span></div>
+            <div class="stat-sub">${rangeLabel()}</div>
+          </div>
+        </div>
+
+        ${daily.length > 1 ? `
+        <div class="chart-card">
+          <h2>Daily requests</h2>
+          <div class="sparkline-wrap">${renderSparkline(daily)}</div>
+        </div>` : ''}
+
+        <div class="tables-grid">
+          <div class="table-card">
+            <h2>Top Pages</h2>
+            ${renderTable(topPages, 'path', 'requests')}
+          </div>
+          <div class="table-card">
+            <h2>Top Countries</h2>
+            ${renderTable(topCountries, 'country', 'requests')}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTable(rows, labelKey, valueKey) {
+      if (!rows.length) return '<div style="color:var(--muted);font-size:0.85rem;padding:8px 0">No data yet</div>';
+      const max = rows[0][valueKey] || 1;
+      return rows.slice(0, 8).map(row => `
+        <div class="table-row">
+          <span class="row-label" title="${row[labelKey]}">${row[labelKey] || '/'}</span>
+          <div class="table-row-bar">
+            <div class="bar-bg">
+              <div class="bar-fill" style="width:${Math.round((row[valueKey]/max)*100)}%"></div>
+            </div>
+          </div>
+          <span class="row-value">${fmt(row[valueKey])}</span>
+        </div>`).join('');
+    }
+
+    function renderSparkline(daily) {
+      const vals = daily.map(d => d.requests);
+      const max = Math.max(...vals, 1);
+      const W = 800, H = 80, pad = 4;
+      const pts = vals.map((v, i) => {
+        const x = pad + (i / (vals.length - 1)) * (W - pad * 2);
+        const y = H - pad - ((v / max) * (H - pad * 2));
+        return `${x},${y}`;
+      }).join(' ');
+      const areaBot = `${W - pad},${H - pad} ${pad},${H - pad}`;
+      return `<svg class="sparkline" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#D4728C" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#D4728C" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <polygon points="${pts} ${areaBot}" fill="url(#sg)"/>
+        <polyline points="${pts}" fill="none" stroke="#D4728C" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg>`;
+    }
+
+    function fmt(n) {
+      if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+      if (n >= 1000)    return (n/1000).toFixed(1) + 'k';
+      return n.toString();
+    }
+
+    function rangeLabel() {
+      if (currentDays === 1)  return 'Today';
+      if (currentDays === 7)  return 'Last 7 days';
+      if (currentDays === 30) return 'Last 30 days';
+      return `Last ${currentDays} days`;
+    }
+
+    // Auto-load if already unlocked
+    if (sessionStorage.getItem(SESSION_KEY)) loadData();
+  </script>
+
+</body>
+</html>
