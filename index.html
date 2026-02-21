@@ -16,14 +16,14 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:       #08080d;
-      --surface:  #13131f;
-      --border:   #1e1e2e;
-      --accent:   #D4728C;
+      --bg:         #08080d;
+      --surface:    #13131f;
+      --border:     #1e1e2e;
+      --accent:     #D4728C;
       --accent-dim: rgba(212, 114, 140, 0.12);
-      --text:     #e8e8f0;
-      --muted:    #8888aa;
-      --radius:   12px;
+      --text:       #e8e8f0;
+      --muted:      #8888aa;
+      --radius:     12px;
     }
 
     html { scroll-behavior: smooth; }
@@ -35,19 +35,35 @@
       min-height: 100vh;
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
 
-    /* ── Layout ── */
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 0 24px;
+    /* ── Mouse glow overlay ── */
+    #glow {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 1;
+      transition: opacity 0.6s;
     }
 
     /* ── Nav ── */
     nav {
-      padding: 24px 0;
-      border-bottom: 1px solid var(--border);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 20px 0;
+      border-bottom: 1px solid transparent;
+      transition: background 0.4s, border-color 0.4s, backdrop-filter 0.4s;
+    }
+    nav.scrolled {
+      background: rgba(8, 8, 13, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom-color: var(--border);
     }
     nav .container {
       display: flex;
@@ -60,14 +76,16 @@
       color: var(--text);
       text-decoration: none;
       letter-spacing: -0.01em;
+      position: relative;
+      z-index: 1;
     }
-    .nav-logo span {
-      color: var(--accent);
-    }
+    .nav-logo span { color: var(--accent); }
     .nav-links {
       display: flex;
       gap: 28px;
       list-style: none;
+      position: relative;
+      z-index: 1;
     }
     .nav-links a {
       color: var(--muted);
@@ -78,10 +96,29 @@
     }
     .nav-links a:hover { color: var(--text); }
 
+    /* ── Layout ── */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
     /* ── Hero ── */
     .hero {
-      padding: 96px 0 80px;
+      position: relative;
+      padding: 160px 0 100px;
+      overflow: hidden;
     }
+    #hero-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .hero .container { position: relative; z-index: 1; }
+
     .hero-eyebrow {
       display: inline-flex;
       align-items: center;
@@ -92,6 +129,7 @@
       text-transform: uppercase;
       color: var(--accent);
       margin-bottom: 24px;
+      will-change: transform;
     }
     .hero-eyebrow::before {
       content: '';
@@ -102,12 +140,13 @@
       border-radius: 2px;
     }
     .hero h1 {
-      font-size: clamp(2.2rem, 5vw, 3.4rem);
+      font-size: clamp(2.4rem, 5.5vw, 3.6rem);
       font-weight: 700;
       letter-spacing: -0.03em;
-      line-height: 1.1;
-      margin-bottom: 24px;
+      line-height: 1.08;
+      margin-bottom: 28px;
       color: var(--text);
+      will-change: transform;
     }
     .hero h1 em {
       font-style: normal;
@@ -116,14 +155,17 @@
     .hero p {
       font-size: 1.15rem;
       color: var(--muted);
-      max-width: 560px;
+      max-width: 540px;
       line-height: 1.7;
+      will-change: transform;
     }
 
-    /* ── Section headings ── */
+    /* ── Sections ── */
     .section {
-      padding: 72px 0;
+      padding: 80px 0;
       border-top: 1px solid var(--border);
+      position: relative;
+      z-index: 1;
     }
     .section-label {
       font-size: 0.75rem;
@@ -152,7 +194,7 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
-      transition: border-color 0.2s, transform 0.2s;
+      transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
       position: relative;
       overflow: hidden;
     }
@@ -162,29 +204,18 @@
       inset: 0;
       background: var(--accent-dim);
       opacity: 0;
-      transition: opacity 0.2s;
+      transition: opacity 0.25s;
     }
     .app-card:hover {
       border-color: var(--accent);
-      transform: translateY(-2px);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px rgba(212, 114, 140, 0.12);
     }
     .app-card:hover::before { opacity: 1; }
 
-    .app-card-icon {
-      font-size: 1.8rem;
-      line-height: 1;
-    }
-    .app-card-name {
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: var(--text);
-    }
-    .app-card-desc {
-      font-size: 0.88rem;
-      color: var(--muted);
-      line-height: 1.5;
-      flex: 1;
-    }
+    .app-card-icon { font-size: 1.8rem; line-height: 1; }
+    .app-card-name { font-size: 1.05rem; font-weight: 600; color: var(--text); }
+    .app-card-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.5; flex: 1; }
     .app-card-status {
       display: inline-flex;
       align-items: center;
@@ -215,24 +246,46 @@
     }
 
     /* ── About ── */
+    .about-layout {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 44px;
+      align-items: center;
+    }
+    .about-photo-wrap {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+      outline: 2px solid var(--accent);
+      outline-offset: 4px;
+      box-shadow: 0 0 0 1px rgba(212,114,140,0.2), 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .about-photo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 8%;
+      display: block;
+      filter: grayscale(100%);
+    }
     .about-text {
       font-size: 1.05rem;
       color: var(--muted);
       line-height: 1.8;
-      max-width: 620px;
     }
-    .about-text p + p {
-      margin-top: 16px;
-    }
-    .about-text strong {
-      color: var(--text);
-      font-weight: 500;
-    }
+    .about-text p + p { margin-top: 16px; }
+    .about-text strong { color: var(--text); font-weight: 500; }
+    .about-text a { color: var(--accent); text-decoration: none; }
+    .about-text a:hover { text-decoration: underline; }
 
     /* ── Footer ── */
     footer {
       padding: 40px 0;
       border-top: 1px solid var(--border);
+      position: relative;
+      z-index: 1;
     }
     footer .container {
       display: flex;
@@ -241,14 +294,8 @@
       flex-wrap: wrap;
       gap: 16px;
     }
-    .footer-copy {
-      font-size: 0.82rem;
-      color: var(--muted);
-    }
-    .footer-links {
-      display: flex;
-      gap: 20px;
-    }
+    .footer-copy { font-size: 0.82rem; color: var(--muted); }
+    .footer-links { display: flex; gap: 20px; }
     .footer-links a {
       color: var(--muted);
       text-decoration: none;
@@ -260,55 +307,70 @@
       transition: color 0.2s;
     }
     .footer-links a:hover { color: var(--accent); }
+    .icon { width: 16px; height: 16px; flex-shrink: 0; }
 
-    /* ── Icons (inline SVG helpers) ── */
-    .icon {
-      width: 16px;
-      height: 16px;
-      flex-shrink: 0;
+    /* ── Reveal animations ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { opacity: 1; transform: none; transition: none; }
+      .reveal.visible { opacity: 1; transform: none; }
     }
 
     /* ── Responsive ── */
-    @media (max-width: 600px) {
-      .hero { padding: 64px 0 56px; }
-      .section { padding: 56px 0; }
+    @media (max-width: 640px) {
+      .hero { padding: 120px 0 72px; }
+      .section { padding: 60px 0; }
       .nav-links { display: none; }
       .app-grid { grid-template-columns: 1fr; }
+      .about-layout { grid-template-columns: 1fr; gap: 28px; }
+      .about-photo-wrap { width: 96px; height: 96px; }
       footer .container { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
 <body>
 
+  <!-- Mouse glow -->
+  <div id="glow"></div>
+
   <!-- Nav -->
-  <nav>
+  <nav id="nav">
     <div class="container">
       <a href="/" class="nav-logo">stevechalmers<span>.uk</span></a>
       <ul class="nav-links">
         <li><a href="#apps">Apps</a></li>
         <li><a href="#about">About</a></li>
-        <li><a href="https://github.com/stevechalmers" target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href="https://github.com/SJC-G1T/stevechalmers-uk" target="_blank" rel="noopener">GitHub</a></li>
       </ul>
     </div>
   </nav>
 
   <!-- Hero -->
   <section class="hero">
+    <canvas id="hero-canvas" aria-hidden="true"></canvas>
     <div class="container">
-      <div class="hero-eyebrow">Solo developer · AI-assisted · Built in the open</div>
-      <h1>Built with AI.<br><em>Shipped in the open.</em></h1>
-      <p>Small tools from a solo developer working at the intersection of technology, product thinking, and AI. No sign-ups. No tracking. Just useful things that work.</p>
+      <div class="hero-eyebrow" id="p-eyebrow">Solo developer · AI-assisted · Built in the open</div>
+      <h1 id="p-h1">Built with AI.<br><em>Shipped in the open.</em></h1>
+      <p id="p-sub">Small tools from a solo developer working at the intersection of technology, product thinking, and AI. No sign-ups. No tracking. Just useful things that work.</p>
     </div>
   </section>
 
   <!-- The Apps -->
   <section class="section" id="apps">
     <div class="container">
-      <div class="section-label">The Apps</div>
+      <div class="section-label reveal">The Apps</div>
       <div class="app-grid">
 
         <!-- App card — duplicate this block to add a new app -->
-        <a href="/coffee" class="app-card">
+        <a href="/coffee" class="app-card reveal">
           <div class="app-card-icon">☕</div>
           <div class="app-card-name">Coffee Brew Calculator</div>
           <div class="app-card-desc">Get the right ratio and step-by-step brew instructions for V60, French Press, AeroPress, Moka Pot, and Chemex.</div>
@@ -316,7 +378,7 @@
         </a>
 
         <!-- Placeholder — remove when next app ships -->
-        <div class="app-card" style="cursor:default;">
+        <div class="app-card reveal" style="cursor:default;">
           <div class="app-card-icon">🏃</div>
           <div class="app-card-name">Run Pace Calculator</div>
           <div class="app-card-desc">Target pace, splits, and finish time for any distance. No account needed.</div>
@@ -330,11 +392,16 @@
   <!-- About -->
   <section class="section" id="about">
     <div class="container">
-      <div class="section-label">About</div>
-      <div class="about-text">
-        <p>I'm a <strong>senior technology professional</strong> with years of experience across enterprise IT, digital transformation, and product development. These days I'm using AI-assisted development to build and ship small, useful tools in public.</p>
-        <p>Every app here is built with <strong>Claude Code</strong>, hosted on Cloudflare Pages, and costs nothing to run. No databases, no logins, no tracking. If it's useful, it's live. If it's not, I move on.</p>
-        <p>The source for everything is on <a href="https://github.com/stevechalmers" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;">GitHub</a>.</p>
+      <div class="section-label reveal">About</div>
+      <div class="about-layout reveal">
+        <div class="about-photo-wrap">
+          <img src="/images/headshot.jpg" alt="Steve Chalmers" width="120" height="120" loading="lazy">
+        </div>
+        <div class="about-text">
+          <p>I'm a <strong>senior technology professional</strong> with years of experience across enterprise IT, digital transformation, and product development. These days I'm using AI-assisted development to build and ship small, useful tools in public.</p>
+          <p>Every app here is built with <strong>Claude Code</strong>, hosted on Cloudflare Pages, and costs nothing to run. No databases, no logins, no tracking. If it's useful, it's live. If it's not, I move on.</p>
+          <p>The source for everything is on <a href="https://github.com/SJC-G1T/stevechalmers-uk" target="_blank" rel="noopener">GitHub</a>.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -345,29 +412,152 @@
       <div class="footer-copy">stevechalmers.uk — built with Claude Code</div>
       <div class="footer-links">
         <a href="https://x.com/stevechalmers" target="_blank" rel="noopener">
-          <!-- X / Twitter icon -->
-          <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-          </svg>
+          <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           Twitter
         </a>
         <a href="https://bsky.app/profile/stevechalmers.uk" target="_blank" rel="noopener">
-          <!-- Bluesky icon -->
-          <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566.944 1.561 1.266.902 1.565.139 1.908 0 3.08 0 3.768c0 .69.378 5.65.624 6.479.815 2.736 3.713 3.66 6.383 3.364.136-.02.275-.039.415-.056-.138.022-.276.04-.415.056-3.912.58-7.387 2.005-2.83 7.078 5.013 5.19 6.87-1.113 7.823-4.782.953 3.67 2.797 9.956 7.824 4.782 4.366-4.92 1.068-6.497-2.844-7.078a8.741 8.741 0 0 1-.415-.056c.14.017.279.036.415.056 2.67.297 5.568-.628 6.383-3.364.246-.828.624-5.79.624-6.478 0-.69-.139-1.861-.902-2.204-.659-.299-1.664-.62-4.3 1.24C16.046 4.748 13.087 8.687 12 10.8Z"/>
-          </svg>
+          <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566.944 1.561 1.266.902 1.565.139 1.908 0 3.08 0 3.768c0 .69.378 5.65.624 6.479.815 2.736 3.713 3.66 6.383 3.364.136-.02.275-.039.415-.056-.138.022-.276.04-.415.056-3.912.58-7.387 2.005-2.83 7.078 5.013 5.19 6.87-1.113 7.823-4.782.953 3.67 2.797 9.956 7.824 4.782 4.366-4.92 1.068-6.497-2.844-7.078a8.741 8.741 0 0 1-.415-.056c.14.017.279.036.415.056 2.67.297 5.568-.628 6.383-3.364.246-.828.624-5.79.624-6.478 0-.69-.139-1.861-.902-2.204-.659-.299-1.664-.62-4.3 1.24C16.046 4.748 13.087 8.687 12 10.8Z"/></svg>
           Bluesky
         </a>
-        <a href="https://github.com/stevechalmers" target="_blank" rel="noopener">
-          <!-- GitHub icon -->
-          <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
-          </svg>
+        <a href="https://github.com/SJC-G1T/stevechalmers-uk" target="_blank" rel="noopener">
+          <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
           GitHub
         </a>
       </div>
     </div>
   </footer>
+
+  <script>
+    // ── Feature detection ──────────────────────────────────────────────────────
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isTouch = navigator.maxTouchPoints > 0;
+    const isMobile = window.innerWidth < 640;
+
+    // ── 1. Mouse glow ─────────────────────────────────────────────────────────
+    if (!reducedMotion && !isTouch) {
+      const glow = document.getElementById('glow');
+      let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+      let glowX = mx, glowY = my;
+      let mouseIn = true;
+
+      window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; mouseIn = true; });
+      window.addEventListener('mouseleave', () => { mouseIn = false; });
+
+      function animateGlow() {
+        glowX += (mx - glowX) * 0.06;
+        glowY += (my - glowY) * 0.06;
+        if (mouseIn) {
+          glow.style.background = `radial-gradient(600px circle at ${glowX}px ${glowY}px, rgba(212,114,140,0.07) 0%, transparent 70%)`;
+        }
+        requestAnimationFrame(animateGlow);
+      }
+      animateGlow();
+    }
+
+    // ── 2. Hero canvas dot field ───────────────────────────────────────────────
+    (function() {
+      const canvas = document.getElementById('hero-canvas');
+      const ctx = canvas.getContext('2d');
+      const hero = canvas.parentElement;
+      const N = 80;
+      let dots = [];
+      let running = true;
+
+      function resize() {
+        canvas.width  = hero.offsetWidth;
+        canvas.height = hero.offsetHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      for (let i = 0; i < N; i++) {
+        dots.push({
+          x:  Math.random() * canvas.width,
+          y:  Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: (Math.random() - 0.5) * 0.3,
+          r:  Math.random() * 1.8 + 0.6,
+        });
+      }
+
+      // Fade canvas as user scrolls away from hero
+      window.addEventListener('scroll', () => {
+        const heroH = hero.offsetHeight;
+        const scrollY = window.scrollY;
+        const fade = Math.max(0, 1 - (scrollY / (heroH * 0.7)));
+        canvas.style.opacity = fade;
+      });
+
+      document.addEventListener('visibilitychange', () => { running = !document.hidden; });
+
+      function draw() {
+        if (!running) { requestAnimationFrame(draw); return; }
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (const d of dots) {
+          d.x += d.vx;
+          d.y += d.vy;
+          if (d.x < -4) d.x = canvas.width + 4;
+          if (d.x > canvas.width + 4) d.x = -4;
+          if (d.y < -4) d.y = canvas.height + 4;
+          if (d.y > canvas.height + 4) d.y = -4;
+          ctx.beginPath();
+          ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(212,114,140,0.18)';
+          ctx.fill();
+        }
+        requestAnimationFrame(draw);
+      }
+
+      if (!reducedMotion) draw();
+    })();
+
+    // ── 3. Hero parallax ──────────────────────────────────────────────────────
+    if (!reducedMotion && !isTouch && !isMobile) {
+      const eyebrow = document.getElementById('p-eyebrow');
+      const h1      = document.getElementById('p-h1');
+      const sub     = document.getElementById('p-sub');
+
+      function onScroll() {
+        const y = window.scrollY;
+        eyebrow.style.transform = `translateY(${y * 0.35}px)`;
+        h1.style.transform      = `translateY(${y * 0.55}px)`;
+        sub.style.transform     = `translateY(${y * 0.65}px)`;
+      }
+
+      let ticking = false;
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          requestAnimationFrame(() => { onScroll(); ticking = false; });
+          ticking = true;
+        }
+      }, { passive: true });
+    }
+
+    // ── 4. Frosted nav on scroll ──────────────────────────────────────────────
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 60);
+    }, { passive: true });
+
+    // ── 5. Reveal on scroll ───────────────────────────────────────────────────
+    const revealEls = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        const delay = el.dataset.delay || 0;
+        setTimeout(() => el.classList.add('visible'), delay);
+        io.unobserve(el);
+      });
+    }, { threshold: 0.12 });
+
+    // Stagger app cards
+    document.querySelectorAll('.app-card').forEach((card, i) => {
+      card.dataset.delay = i * 80;
+    });
+
+    revealEls.forEach(el => io.observe(el));
+  </script>
 
 </body>
 </html>
