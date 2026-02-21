@@ -331,6 +331,169 @@
       opacity: 0.8;
     }
 
+    /* ── Screenshots carousel ── */
+    .screenshots-section {
+      overflow: hidden;
+      position: relative;
+      padding: 80px 0 60px;
+      border-top: 1px solid var(--border);
+    }
+    /* Canvas particle background for this section */
+    #screenshots-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.55;
+    }
+    .screenshots-section .container { position: relative; z-index: 1; }
+
+    .carousel-outer {
+      position: relative;
+      margin-top: 8px;
+      z-index: 1;
+    }
+    .carousel-track {
+      display: flex;
+      overflow-x: scroll;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      gap: 24px;
+      padding: 16px 0 32px;
+      padding-left:  max(24px, calc((100vw - 900px) / 2 + 24px));
+      padding-right: max(24px, calc((100vw - 900px) / 2 + 24px));
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .carousel-track::-webkit-scrollbar { display: none; }
+
+    .carousel-slide {
+      flex-shrink: 0;
+      width: calc(min(900px, 100vw) / 2 - 60px);
+      max-width: 260px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      scroll-snap-align: start;
+    }
+
+    /* CSS phone frame */
+    .phone-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 9 / 19.5;
+      background: var(--surface);
+      border: 2px solid rgba(255,255,255,0.08);
+      border-radius: 36px;
+      overflow: hidden;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04) inset,
+        0 24px 64px rgba(0,0,0,0.55),
+        0 4px 20px rgba(212,114,140,0.1),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+    /* Subtle accent glow rim on the active/hovered frame */
+    .carousel-slide:hover .phone-frame {
+      border-color: rgba(212, 114, 140, 0.3);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04) inset,
+        0 24px 64px rgba(0,0,0,0.55),
+        0 4px 32px rgba(212,114,140,0.22),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .phone-notch {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 72px;
+      height: 8px;
+      background: var(--bg);
+      border-radius: 6px;
+      z-index: 2;
+    }
+    .phone-screen {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+      border-radius: inherit;
+    }
+
+    .slide-caption {
+      font-size: 0.82rem;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.4;
+    }
+    .slide-caption strong { color: var(--text); font-weight: 600; }
+
+    /* Prev / next buttons */
+    .carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-calc(50% + 16px));
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: rgba(19,19,31,0.9);
+      backdrop-filter: blur(8px);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.2s, color 0.2s;
+      z-index: 10;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .carousel-btn svg { width: 18px; height: 18px; }
+    .carousel-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .carousel-btn:disabled { opacity: 0.25; cursor: default; pointer-events: none; }
+    .carousel-btn-prev { left: 8px; }
+    .carousel-btn-next { right: 8px; }
+
+    /* Dot indicators */
+    .carousel-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 4px;
+      position: relative;
+      z-index: 1;
+    }
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      border: none;
+      background: var(--border);
+      cursor: pointer;
+      padding: 0;
+      transition: background 0.2s, transform 0.2s, width 0.25s;
+    }
+    .dot:hover { background: var(--muted); }
+    .dot-active {
+      background: var(--accent);
+      transform: scale(1.25);
+      width: 20px;
+      border-radius: 4px;
+    }
+
+    @media (max-width: 640px) {
+      .carousel-slide { width: calc(100vw - 64px); max-width: 280px; }
+      .carousel-btn { display: none; }
+      .screenshots-section { padding: 60px 0 40px; }
+    }
+
     /* ── About ── */
     .about-layout {
       display: grid;
@@ -494,6 +657,75 @@
         </a>
 
       </div>
+    </div>
+  </section>
+
+  <!-- Screenshots carousel -->
+  <section class="screenshots-section" id="screenshots" aria-label="App screenshots">
+    <canvas id="screenshots-canvas" aria-hidden="true"></canvas>
+
+    <div class="container">
+      <div class="section-label reveal">See it in action</div>
+    </div>
+
+    <div class="carousel-outer">
+      <div class="carousel-track" id="carouselTrack">
+
+        <div class="carousel-slide reveal" data-delay="0">
+          <div class="phone-frame">
+            <div class="phone-notch" aria-hidden="true"></div>
+            <img class="phone-screen" src="/images/screenshots/hiit-setup.jpg"
+                 alt="HIIT Timer setup screen — exercise list and interval settings"
+                 loading="lazy" width="390" height="844">
+          </div>
+          <p class="slide-caption"><strong>HIIT Timer</strong><br>Setup &amp; intervals</p>
+        </div>
+
+        <div class="carousel-slide reveal" data-delay="80">
+          <div class="phone-frame">
+            <div class="phone-notch" aria-hidden="true"></div>
+            <img class="phone-screen" src="/images/screenshots/hiit-running.jpg"
+                 alt="HIIT Timer active workout — ring progress, exercise name, stats"
+                 loading="lazy" width="390" height="844">
+          </div>
+          <p class="slide-caption"><strong>HIIT Timer</strong><br>Active workout</p>
+        </div>
+
+        <div class="carousel-slide reveal" data-delay="160">
+          <div class="phone-frame">
+            <div class="phone-notch" aria-hidden="true"></div>
+            <img class="phone-screen" src="/images/screenshots/coffee-espresso.jpg"
+                 alt="Coffee Brew Calculator — espresso dose, yield and grind guide"
+                 loading="lazy" width="390" height="844">
+          </div>
+          <p class="slide-caption"><strong>Coffee</strong><br>Espresso inputs</p>
+        </div>
+
+        <div class="carousel-slide reveal" data-delay="240">
+          <div class="phone-frame">
+            <div class="phone-notch" aria-hidden="true"></div>
+            <img class="phone-screen" src="/images/screenshots/coffee-steps.jpg"
+                 alt="Coffee Brew Calculator — numbered step-by-step brew instructions"
+                 loading="lazy" width="390" height="844">
+          </div>
+          <p class="slide-caption"><strong>Coffee</strong><br>Brew steps</p>
+        </div>
+
+      </div>
+
+      <button class="carousel-btn carousel-btn-prev" id="carouselPrev" aria-label="Previous screenshot" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button class="carousel-btn carousel-btn-next" id="carouselNext" aria-label="Next screenshot">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+
+    <div class="carousel-dots" id="carouselDots" role="tablist">
+      <button class="dot dot-active" role="tab" aria-selected="true"  aria-label="Slide 1" data-slide="0"></button>
+      <button class="dot"            role="tab" aria-selected="false" aria-label="Slide 2" data-slide="1"></button>
+      <button class="dot"            role="tab" aria-selected="false" aria-label="Slide 3" data-slide="2"></button>
+      <button class="dot"            role="tab" aria-selected="false" aria-label="Slide 4" data-slide="3"></button>
     </div>
   </section>
 
@@ -681,6 +913,162 @@
     });
 
     revealEls.forEach(el => io.observe(el));
+
+    // ── 6. Screenshots section particle canvas ────────────────────────────────
+    (function() {
+      const canvas = document.getElementById('screenshots-canvas');
+      if (!canvas || reducedMotion) return;
+      const ctx = canvas.getContext('2d');
+      const section = canvas.parentElement;
+
+      // Grid dots — denser, more tech-grid feel
+      const COLS = 28, ROWS = 16;
+      let dots = [];
+      let running = true;
+
+      function resize() {
+        canvas.width  = section.offsetWidth;
+        canvas.height = section.offsetHeight;
+        buildGrid();
+      }
+
+      function buildGrid() {
+        dots = [];
+        const cw = canvas.width, ch = canvas.height;
+        const gapX = cw / COLS, gapY = ch / ROWS;
+        for (let r = 0; r <= ROWS; r++) {
+          for (let c = 0; c <= COLS; c++) {
+            // Small random jitter so it feels organic, not mechanical
+            dots.push({
+              bx: c * gapX,  // base position
+              by: r * gapY,
+              ox: (Math.random() - 0.5) * gapX * 0.4,  // x jitter
+              oy: (Math.random() - 0.5) * gapY * 0.4,  // y jitter
+              phase: Math.random() * Math.PI * 2,        // pulse phase offset
+              speed: 0.4 + Math.random() * 0.6,
+              size:  0.8 + Math.random() * 1.4,
+            });
+          }
+        }
+      }
+
+      resize();
+      window.addEventListener('resize', resize);
+      document.addEventListener('visibilitychange', () => { running = !document.hidden; });
+
+      let t = 0;
+      function draw() {
+        if (!running) { requestAnimationFrame(draw); return; }
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        t += 0.012;
+
+        for (const d of dots) {
+          // Gentle pulse: each dot brightens and dims on its own cycle
+          const pulse = 0.5 + 0.5 * Math.sin(t * d.speed + d.phase);
+          const alpha = 0.06 + pulse * 0.14;  // 0.06 → 0.20 range — very subtle
+          const x = d.bx + d.ox + Math.sin(t * d.speed * 0.5 + d.phase) * 2;
+          const y = d.by + d.oy + Math.cos(t * d.speed * 0.4 + d.phase) * 1.5;
+          ctx.beginPath();
+          ctx.arc(x, y, d.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(212,114,140,${alpha.toFixed(3)})`;
+          ctx.fill();
+        }
+
+        // Draw very faint connecting lines between nearby dots (grid feel)
+        ctx.strokeStyle = 'rgba(212,114,140,0.035)';
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i < dots.length; i++) {
+          const a = dots[i];
+          const ax = a.bx + a.ox;
+          const ay = a.by + a.oy;
+          for (let j = i + 1; j < dots.length; j++) {
+            const b = dots[j];
+            const bx = b.bx + b.ox;
+            const by = b.by + b.oy;
+            const dx = ax - bx, dy = ay - by;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            // Only connect to neighbours (grid spacing ≈ canvas.width/COLS)
+            if (dist < canvas.width / COLS * 1.5) {
+              ctx.beginPath();
+              ctx.moveTo(ax, ay);
+              ctx.lineTo(bx, by);
+              ctx.stroke();
+            }
+          }
+        }
+
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    // ── 7. Screenshots carousel ───────────────────────────────────────────────
+    (function() {
+      const track   = document.getElementById('carouselTrack');
+      if (!track) return;
+      const slides  = track.querySelectorAll('.carousel-slide');
+      const dots    = document.querySelectorAll('.dot');
+      const prevBtn = document.getElementById('carouselPrev');
+      const nextBtn = document.getElementById('carouselNext');
+      const total   = slides.length;
+      let current   = 0;
+      let autoTimer = null;
+
+      function goTo(i, smooth = true) {
+        i = Math.max(0, Math.min(i, total - 1));
+        current = i;
+        slides[i].scrollIntoView({ behavior: smooth ? 'smooth' : 'instant', block: 'nearest', inline: 'start' });
+        updateDots();
+        updateButtons();
+      }
+
+      function updateDots() {
+        dots.forEach((d, i) => {
+          d.classList.toggle('dot-active', i === current);
+          d.setAttribute('aria-selected', String(i === current));
+        });
+      }
+
+      function updateButtons() {
+        prevBtn.disabled = current === 0;
+        nextBtn.disabled = current === total - 1;
+      }
+
+      // Sync on native scroll (touch swipe)
+      track.addEventListener('scroll', () => {
+        let closest = 0, minDist = Infinity;
+        slides.forEach((s, i) => {
+          const dist = Math.abs(s.getBoundingClientRect().left - track.getBoundingClientRect().left);
+          if (dist < minDist) { minDist = dist; closest = i; }
+        });
+        if (closest !== current) { current = closest; updateDots(); updateButtons(); }
+      }, { passive: true });
+
+      prevBtn.addEventListener('click', () => { stopAuto(); goTo(current - 1); });
+      nextBtn.addEventListener('click', () => { stopAuto(); goTo(current + 1); });
+      dots.forEach(d => d.addEventListener('click', () => { stopAuto(); goTo(+d.dataset.slide); }));
+
+      // Keyboard nav (only when section is in view)
+      document.addEventListener('keydown', e => {
+        const sec = document.getElementById('screenshots');
+        if (!sec) return;
+        const r = sec.getBoundingClientRect();
+        if (r.bottom < 0 || r.top > window.innerHeight) return;
+        if (e.key === 'ArrowLeft')  { stopAuto(); goTo(current - 1); }
+        if (e.key === 'ArrowRight') { stopAuto(); goTo(current + 1); }
+      });
+
+      function startAuto() {
+        if (reducedMotion) return;
+        autoTimer = setInterval(() => goTo(current < total - 1 ? current + 1 : 0), 4000);
+      }
+      function stopAuto() { clearInterval(autoTimer); autoTimer = null; }
+      track.addEventListener('touchstart', stopAuto, { passive: true });
+
+      updateDots();
+      updateButtons();
+      startAuto();
+    })();
 
     // ── Service worker registration ────────────────────────────────────────────
     if ('serviceWorker' in navigator) {
