@@ -9,6 +9,8 @@
   <meta property="og:description" content="Small tools from a solo developer working at the intersection of technology, product thinking, and AI.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://stevechalmers.uk">
+  <meta name="theme-color" content="#08080d">
+  <link rel="manifest" href="/manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -138,7 +140,13 @@
       height: 2px;
       background: var(--accent);
       border-radius: 2px;
+      flex-shrink: 0;
     }
+    .eyebrow-text {
+      transition: opacity 0.5s ease;
+    }
+    .eyebrow-text.fade-out { opacity: 0; }
+    .eyebrow-text.fade-in  { opacity: 1; }
     .hero h1 {
       font-size: clamp(2.4rem, 5.5vw, 3.6rem);
       font-weight: 700;
@@ -176,6 +184,52 @@
       margin-bottom: 40px;
     }
 
+    /* ── How it works strip ── */
+    .how-strip {
+      padding: 28px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      z-index: 1;
+    }
+    .how-strip .container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .how-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 7px 14px;
+      white-space: nowrap;
+    }
+    .how-pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+    .how-sep {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+    @media (max-width: 640px) {
+      .how-sep { display: none; }
+      .how-strip .container { gap: 8px; }
+    }
+
     /* ── App grid ── */
     .app-grid {
       display: grid;
@@ -206,6 +260,13 @@
       opacity: 0;
       transition: opacity 0.25s;
     }
+    /* Top accent line for live cards */
+    .app-card.card-live {
+      border-top: 2px solid var(--accent);
+    }
+    .app-card.card-soon {
+      border-top: 2px solid var(--border);
+    }
     .app-card:hover {
       border-color: var(--accent);
       transform: translateY(-3px);
@@ -213,9 +274,30 @@
     }
     .app-card:hover::before { opacity: 1; }
 
+    /* Arrow that slides in on hover */
+    .app-card-arrow {
+      position: absolute;
+      top: 28px;
+      right: 28px;
+      font-size: 1.1rem;
+      color: var(--accent);
+      opacity: 0;
+      transform: translateX(-6px);
+      transition: opacity 0.22s, transform 0.22s;
+      pointer-events: none;
+    }
+    .app-card:hover .app-card-arrow { opacity: 1; transform: translateX(0); }
+
     .app-card-icon { font-size: 1.8rem; line-height: 1; }
     .app-card-name { font-size: 1.05rem; font-weight: 600; color: var(--text); }
     .app-card-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.5; flex: 1; }
+    .app-card-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
     .app-card-status {
       display: inline-flex;
       align-items: center;
@@ -226,7 +308,6 @@
       padding: 4px 10px;
       border-radius: 20px;
       align-self: flex-start;
-      margin-top: 4px;
     }
     .status-live {
       background: rgba(212, 114, 140, 0.15);
@@ -243,6 +324,11 @@
     .status-soon {
       background: rgba(136, 136, 170, 0.1);
       color: var(--muted);
+    }
+    .app-card-badge {
+      font-size: 0.72rem;
+      color: var(--muted);
+      opacity: 0.8;
     }
 
     /* ── About ── */
@@ -357,11 +443,24 @@
   <section class="hero">
     <canvas id="hero-canvas" aria-hidden="true"></canvas>
     <div class="container">
-      <div class="hero-eyebrow" id="p-eyebrow">Solo developer · AI-assisted · Built in the open</div>
+      <div class="hero-eyebrow" id="p-eyebrow"><span class="eyebrow-text" id="eyebrow-text">Solo developer</span></div>
       <h1 id="p-h1">Built with AI.<br><em>Shipped in the open.</em></h1>
       <p id="p-sub">Small tools from a solo developer working at the intersection of technology, product thinking, and AI. No sign-ups. No tracking. Just useful things that work.</p>
     </div>
   </section>
+
+  <!-- How it works strip -->
+  <div class="how-strip">
+    <div class="container">
+      <div class="how-pill"><span class="how-pill-dot"></span>Zero cost to run</div>
+      <div class="how-sep" aria-hidden="true"></div>
+      <div class="how-pill"><span class="how-pill-dot"></span>Works offline</div>
+      <div class="how-sep" aria-hidden="true"></div>
+      <div class="how-pill"><span class="how-pill-dot"></span>No sign-up ever</div>
+      <div class="how-sep" aria-hidden="true"></div>
+      <div class="how-pill"><span class="how-pill-dot"></span>Installs like an app</div>
+    </div>
+  </div>
 
   <!-- The Apps -->
   <section class="section" id="apps">
@@ -370,19 +469,25 @@
       <div class="app-grid">
 
         <!-- App card — duplicate this block to add a new app -->
-        <a href="/coffee" class="app-card reveal">
+        <a href="/coffee" class="app-card card-live reveal">
+          <span class="app-card-arrow" aria-hidden="true">→</span>
           <div class="app-card-icon">☕</div>
           <div class="app-card-name">Coffee Brew Calculator</div>
-          <div class="app-card-desc">Get the right ratio and step-by-step brew instructions for V60, French Press, AeroPress, Moka Pot, and Chemex.</div>
-          <div class="app-card-status status-live">Live</div>
+          <div class="app-card-desc">Ratios, brew times, and step-by-step instructions for V60, French Press, AeroPress, Moka Pot, Chemex, and Espresso. Saves your settings.</div>
+          <div class="app-card-meta">
+            <div class="app-card-status status-live">Live</div>
+            <span class="app-card-badge">Works offline · Installable</span>
+          </div>
         </a>
 
         <!-- Placeholder — remove when next app ships -->
-        <div class="app-card reveal" style="cursor:default;">
+        <div class="app-card card-soon reveal" style="cursor:default;">
           <div class="app-card-icon">🏃</div>
           <div class="app-card-name">Run Pace Calculator</div>
           <div class="app-card-desc">Target pace, splits, and finish time for any distance. No account needed.</div>
-          <div class="app-card-status status-soon">Coming soon</div>
+          <div class="app-card-meta">
+            <div class="app-card-status status-soon">Coming soon</div>
+          </div>
         </div>
 
       </div>
@@ -398,9 +503,9 @@
           <img src="/images/headshot.jpg" alt="Steve Chalmers" width="120" height="120" loading="lazy">
         </div>
         <div class="about-text">
-          <p>I'm a <strong>senior technology professional</strong> with years of experience across enterprise IT, digital transformation, and product development. These days I'm using AI-assisted development to build and ship small, useful tools in public.</p>
-          <p>Every app here is built with <strong>Claude Code</strong>, hosted on Cloudflare Pages, and costs nothing to run. No databases, no logins, no tracking. If it's useful, it's live. If it's not, I move on.</p>
-          <p>The source for everything is on <a href="https://github.com/SJC-G1T/stevechalmers-uk" target="_blank" rel="noopener">GitHub</a>.</p>
+          <p>Senior tech professional. Background in enterprise IT, digital transformation, and product. These days I spend my time building small, useful things in the open — one app at a time.</p>
+          <p>I use <strong>Claude Code</strong> to do it. Not because I can't code, but because it means I can go from idea to live product in an afternoon. The interesting work turns out to be product thinking, not syntax.</p>
+          <p>Everything here is <strong>free to use and free to run</strong> — no databases, no logins, no tracking. Source code is on <a href="https://github.com/SJC-G1T/stevechalmers-uk" target="_blank" rel="noopener">GitHub</a>.</p>
         </div>
       </div>
     </div>
@@ -432,6 +537,22 @@
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const isTouch = navigator.maxTouchPoints > 0;
     const isMobile = window.innerWidth < 640;
+
+    // ── 0. Cycling eyebrow text ────────────────────────────────────────────────
+    if (!reducedMotion) {
+      const phrases = ['Solo developer', 'AI-assisted', 'Built in the open'];
+      let phraseIdx = 0;
+      const eyebrowEl = document.getElementById('eyebrow-text');
+
+      setInterval(() => {
+        eyebrowEl.classList.add('fade-out');
+        setTimeout(() => {
+          phraseIdx = (phraseIdx + 1) % phrases.length;
+          eyebrowEl.textContent = phrases[phraseIdx];
+          eyebrowEl.classList.remove('fade-out');
+        }, 500);
+      }, 3000);
+    }
 
     // ── 1. Mouse glow ─────────────────────────────────────────────────────────
     if (!reducedMotion && !isTouch) {
@@ -557,6 +678,13 @@
     });
 
     revealEls.forEach(el => io.observe(el));
+
+    // ── Service worker registration ────────────────────────────────────────────
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
   </script>
 
 </body>

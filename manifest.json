@@ -1,0 +1,23 @@
+{
+  "name": "Steve Chalmers",
+  "short_name": "stevechalmers.uk",
+  "description": "Small, useful tools. Built with AI. Shipped in the open.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#08080d",
+  "theme_color": "#08080d",
+  "icons": [
+    {
+      "src": "/coffee/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/coffee/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
