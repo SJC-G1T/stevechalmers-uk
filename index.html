@@ -1113,12 +1113,13 @@
       const nextBtn = document.getElementById('carouselNext');
       const total   = slides.length;
       let current   = 0;
-      let autoTimer = null;
 
       function goTo(i, smooth = true) {
         i = Math.max(0, Math.min(i, total - 1));
         current = i;
-        slides[i].scrollIntoView({ behavior: smooth ? 'smooth' : 'instant', block: 'nearest', inline: 'start' });
+        // Scroll only the track, never the page
+        const slideLeft = slides[i].offsetLeft - track.offsetLeft;
+        track.scrollTo({ left: slideLeft, behavior: smooth ? 'smooth' : 'instant' });
         updateDots();
         updateButtons();
       }
@@ -1145,9 +1146,9 @@
         if (closest !== current) { current = closest; updateDots(); updateButtons(); }
       }, { passive: true });
 
-      prevBtn.addEventListener('click', () => { stopAuto(); goTo(current - 1); });
-      nextBtn.addEventListener('click', () => { stopAuto(); goTo(current + 1); });
-      dots.forEach(d => d.addEventListener('click', () => { stopAuto(); goTo(+d.dataset.slide); }));
+      prevBtn.addEventListener('click', () => goTo(current - 1));
+      nextBtn.addEventListener('click', () => goTo(current + 1));
+      dots.forEach(d => d.addEventListener('click', () => goTo(+d.dataset.slide)));
 
       // Keyboard nav (only when section is in view)
       document.addEventListener('keydown', e => {
@@ -1155,20 +1156,12 @@
         if (!sec) return;
         const r = sec.getBoundingClientRect();
         if (r.bottom < 0 || r.top > window.innerHeight) return;
-        if (e.key === 'ArrowLeft')  { stopAuto(); goTo(current - 1); }
-        if (e.key === 'ArrowRight') { stopAuto(); goTo(current + 1); }
+        if (e.key === 'ArrowLeft')  goTo(current - 1);
+        if (e.key === 'ArrowRight') goTo(current + 1);
       });
-
-      function startAuto() {
-        if (reducedMotion) return;
-        autoTimer = setInterval(() => goTo(current < total - 1 ? current + 1 : 0), 4000);
-      }
-      function stopAuto() { clearInterval(autoTimer); autoTimer = null; }
-      track.addEventListener('touchstart', stopAuto, { passive: true });
 
       updateDots();
       updateButtons();
-      startAuto();
     })();
 
     // ── Service worker registration ────────────────────────────────────────────
