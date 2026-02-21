@@ -299,7 +299,8 @@
     }
     .app-card:hover .app-card-arrow { opacity: 1; transform: translateX(0); }
 
-    .app-card-icon { font-size: 1.8rem; line-height: 1; }
+    .app-card-icon { width: 56px; height: 56px; border-radius: 12px; overflow: hidden; margin-bottom: 4px; }
+    .app-card-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .app-card-name { font-size: 1.05rem; font-weight: 600; color: var(--text); }
     .app-card-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.5; flex: 1; }
     .app-card-meta {
@@ -658,7 +659,7 @@
         <!-- App card — duplicate this block to add a new app -->
         <a href="/coffee" class="app-card card-live reveal">
           <span class="app-card-arrow" aria-hidden="true">→</span>
-          <div class="app-card-icon">☕</div>
+          <div class="app-card-icon"><img src="/images/icons/coffee-icon.png" alt="Coffee Brew Calculator"></div>
           <div class="app-card-name">Coffee Brew Calculator</div>
           <div class="app-card-desc">Ratios, brew times, and step-by-step instructions for V60, French Press, AeroPress, Moka Pot, Chemex, and Espresso. Saves your settings.</div>
           <div class="app-card-meta">
@@ -670,7 +671,7 @@
         <!-- HIIT Timer -->
         <a href="/hiit" class="app-card card-live reveal">
           <span class="app-card-arrow" aria-hidden="true">→</span>
-          <div class="app-card-icon">🏋️</div>
+          <div class="app-card-icon"><img src="/images/icons/hiit-icon.png" alt="HIIT Timer"></div>
           <div class="app-card-name">HIIT Timer</div>
           <div class="app-card-desc">Interval timer with audio beeps, rounds, custom exercises, and workout history. Built for phone use.</div>
           <div class="app-card-meta">
