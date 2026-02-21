@@ -348,12 +348,17 @@
       z-index: 0;
       opacity: 0.55;
     }
-    .screenshots-section .container { position: relative; z-index: 1; }
+    .screenshots-section .container {
+      position: relative;
+      z-index: 1;
+      overflow: visible; /* allow track to scroll beyond container right edge */
+    }
 
     .carousel-outer {
       position: relative;
-      margin-top: 8px;
+      margin-top: 24px;
       z-index: 1;
+      overflow: visible;
     }
     .carousel-track {
       display: flex;
@@ -363,8 +368,6 @@
       -webkit-overflow-scrolling: touch;
       gap: 24px;
       padding: 16px 0 32px;
-      padding-left:  max(24px, calc((100vw - 900px) / 2 + 24px));
-      padding-right: max(24px, calc((100vw - 900px) / 2 + 24px));
       scrollbar-width: none;
       -ms-overflow-style: none;
     }
@@ -372,8 +375,8 @@
 
     .carousel-slide {
       flex-shrink: 0;
-      width: calc(min(900px, 100vw) / 2 - 60px);
-      max-width: 260px;
+      width: 220px;
+      max-width: 220px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -459,8 +462,8 @@
     .carousel-btn svg { width: 18px; height: 18px; }
     .carousel-btn:hover { border-color: var(--accent); color: var(--accent); }
     .carousel-btn:disabled { opacity: 0.25; cursor: default; pointer-events: none; }
-    .carousel-btn-prev { left: 8px; }
-    .carousel-btn-next { right: 8px; }
+    .carousel-btn-prev { left: -20px; }
+    .carousel-btn-next { right: -20px; }
 
     /* Dot indicators */
     .carousel-dots {
@@ -666,66 +669,66 @@
 
     <div class="container">
       <div class="section-label reveal">See it in action</div>
-    </div>
 
-    <div class="carousel-outer">
-      <div class="carousel-track" id="carouselTrack">
+      <div class="carousel-outer">
+        <div class="carousel-track" id="carouselTrack">
 
-        <div class="carousel-slide reveal" data-delay="0">
-          <div class="phone-frame">
-            <div class="phone-notch" aria-hidden="true"></div>
-            <img class="phone-screen" src="/images/screenshots/hiit-setup.jpg"
-                 alt="HIIT Timer setup screen — exercise list and interval settings"
-                 loading="lazy" width="390" height="844">
+          <div class="carousel-slide reveal" data-delay="0">
+            <div class="phone-frame">
+              <div class="phone-notch" aria-hidden="true"></div>
+              <img class="phone-screen" src="/images/screenshots/hiit-setup.jpg"
+                   alt="HIIT Timer setup screen — exercise list and interval settings"
+                   loading="lazy" width="390" height="844">
+            </div>
+            <p class="slide-caption"><strong>HIIT Timer</strong><br>Setup &amp; intervals</p>
           </div>
-          <p class="slide-caption"><strong>HIIT Timer</strong><br>Setup &amp; intervals</p>
+
+          <div class="carousel-slide reveal" data-delay="80">
+            <div class="phone-frame">
+              <div class="phone-notch" aria-hidden="true"></div>
+              <img class="phone-screen" src="/images/screenshots/hiit-running.jpg"
+                   alt="HIIT Timer active workout — ring progress, exercise name, stats"
+                   loading="lazy" width="390" height="844">
+            </div>
+            <p class="slide-caption"><strong>HIIT Timer</strong><br>Active workout</p>
+          </div>
+
+          <div class="carousel-slide reveal" data-delay="160">
+            <div class="phone-frame">
+              <div class="phone-notch" aria-hidden="true"></div>
+              <img class="phone-screen" src="/images/screenshots/coffee-espresso.jpg"
+                   alt="Coffee Brew Calculator — espresso dose, yield and grind guide"
+                   loading="lazy" width="390" height="844">
+            </div>
+            <p class="slide-caption"><strong>Coffee</strong><br>Espresso inputs</p>
+          </div>
+
+          <div class="carousel-slide reveal" data-delay="240">
+            <div class="phone-frame">
+              <div class="phone-notch" aria-hidden="true"></div>
+              <img class="phone-screen" src="/images/screenshots/coffee-steps.jpg"
+                   alt="Coffee Brew Calculator — numbered step-by-step brew instructions"
+                   loading="lazy" width="390" height="844">
+            </div>
+            <p class="slide-caption"><strong>Coffee</strong><br>Brew steps</p>
+          </div>
+
         </div>
 
-        <div class="carousel-slide reveal" data-delay="80">
-          <div class="phone-frame">
-            <div class="phone-notch" aria-hidden="true"></div>
-            <img class="phone-screen" src="/images/screenshots/hiit-running.jpg"
-                 alt="HIIT Timer active workout — ring progress, exercise name, stats"
-                 loading="lazy" width="390" height="844">
-          </div>
-          <p class="slide-caption"><strong>HIIT Timer</strong><br>Active workout</p>
-        </div>
-
-        <div class="carousel-slide reveal" data-delay="160">
-          <div class="phone-frame">
-            <div class="phone-notch" aria-hidden="true"></div>
-            <img class="phone-screen" src="/images/screenshots/coffee-espresso.jpg"
-                 alt="Coffee Brew Calculator — espresso dose, yield and grind guide"
-                 loading="lazy" width="390" height="844">
-          </div>
-          <p class="slide-caption"><strong>Coffee</strong><br>Espresso inputs</p>
-        </div>
-
-        <div class="carousel-slide reveal" data-delay="240">
-          <div class="phone-frame">
-            <div class="phone-notch" aria-hidden="true"></div>
-            <img class="phone-screen" src="/images/screenshots/coffee-steps.jpg"
-                 alt="Coffee Brew Calculator — numbered step-by-step brew instructions"
-                 loading="lazy" width="390" height="844">
-          </div>
-          <p class="slide-caption"><strong>Coffee</strong><br>Brew steps</p>
-        </div>
-
+        <button class="carousel-btn carousel-btn-prev" id="carouselPrev" aria-label="Previous screenshot" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="carousel-btn carousel-btn-next" id="carouselNext" aria-label="Next screenshot">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
       </div>
 
-      <button class="carousel-btn carousel-btn-prev" id="carouselPrev" aria-label="Previous screenshot" disabled>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <button class="carousel-btn carousel-btn-next" id="carouselNext" aria-label="Next screenshot">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
-      </button>
-    </div>
-
-    <div class="carousel-dots" id="carouselDots" role="tablist">
-      <button class="dot dot-active" role="tab" aria-selected="true"  aria-label="Slide 1" data-slide="0"></button>
-      <button class="dot"            role="tab" aria-selected="false" aria-label="Slide 2" data-slide="1"></button>
-      <button class="dot"            role="tab" aria-selected="false" aria-label="Slide 3" data-slide="2"></button>
-      <button class="dot"            role="tab" aria-selected="false" aria-label="Slide 4" data-slide="3"></button>
+      <div class="carousel-dots" id="carouselDots" role="tablist">
+        <button class="dot dot-active" role="tab" aria-selected="true"  aria-label="Slide 1" data-slide="0"></button>
+        <button class="dot"            role="tab" aria-selected="false" aria-label="Slide 2" data-slide="1"></button>
+        <button class="dot"            role="tab" aria-selected="false" aria-label="Slide 3" data-slide="2"></button>
+        <button class="dot"            role="tab" aria-selected="false" aria-label="Slide 4" data-slide="3"></button>
+      </div>
     </div>
   </section>
 
