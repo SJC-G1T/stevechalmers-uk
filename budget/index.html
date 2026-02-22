@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Tracker | stevechalmers.uk</title>
+    <meta name="description" content="A free browser-based budget tracker. Track income, expenses, debts and recurring costs. No sign-up. No cloud. Your data stays on your device.">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link rel="apple-touch-icon" href="/images/icons/budget-icon.png">
+    <link rel="icon" type="image/png" href="/images/icons/budget-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Budget Tracker">
+    <meta name="theme-color" content="#08080d">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-toggle" id="sidebarToggle">
+                <i data-lucide="menu" class="icon"></i>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-item" data-action="startingBalance" title="Starting Balance">
+                    <i data-lucide="wallet" class="nav-icon"></i>
+                    <span class="nav-label">Starting Balance</span>
+                </button>
+                <button class="nav-item" data-action="quickFilter" title="Quick Filter">
+                    <i data-lucide="search" class="nav-icon"></i>
+                    <span class="nav-label">Quick Filter</span>
+                </button>
+                <button class="nav-item" data-action="debts" title="Debts">
+                    <i data-lucide="credit-card" class="nav-icon"></i>
+                    <span class="nav-label">Debts</span>
+                </button>
+                <button class="nav-item" data-action="recurringCosts" title="Recurring Costs Chart">
+                    <i data-lucide="pie-chart" class="nav-icon"></i>
+                    <span class="nav-label">Recurring Costs</span>
+                </button>
+                <button class="nav-item" data-action="calculator" title="Calculator">
+                    <i data-lucide="calculator" class="nav-icon"></i>
+                    <span class="nav-label">Calculator</span>
+                </button>
+                <button class="nav-item" data-action="hideMonths" title="Hide/Archive">
+                    <i data-lucide="archive" class="nav-icon"></i>
+                    <span class="nav-label">Hide/Archive</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <a href="/" style="text-decoration: none; display: flex; align-items: center; gap: 0.4rem; color: var(--text-muted); font-size: 12px; letter-spacing: 0.3px; margin-right: 8px;" title="Back to stevechalmers.uk"><i data-lucide="arrow-left" style="width:14px;height:14px;"></i></a>
+                    <h1 class="app-title">Budget Tracker</h1>
+                    <div class="balance-display">
+                        <span class="balance-label">Balance Today</span>
+                        <span class="balance-value" id="balanceToday">£0.00</span>
+                    </div>
+                    <div class="balance-display">
+                        <span class="balance-label">Year-End Net Worth</span>
+                        <span class="balance-value" id="yearEndNetWorth">£0.00</span>
+                    </div>
+                </div>
+                <div class="top-bar-right">
+                    <div class="year-selector">
+                        <select id="yearSelect"></select>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-icon" id="undoBtn" title="Undo (Ctrl+Z)">
+                            <i data-lucide="undo-2" class="icon"></i>
+                        </button>
+                        <button class="btn btn-icon" id="redoBtn" title="Redo (Ctrl+Y)">
+                            <i data-lucide="redo-2" class="icon"></i>
+                        </button>
+                        <button class="btn btn-secondary" id="goToTodayBtn">
+                            <i data-lucide="calendar-check" class="icon"></i>
+                            <span>Today</span>
+                        </button>
+                        <button class="btn btn-secondary" id="addRowBtn">
+                            <i data-lucide="plus" class="icon"></i>
+                            <span>Add Row</span>
+                        </button>
+                        <button class="btn btn-primary" id="addRecurringBtn">
+                            <i data-lucide="repeat" class="icon"></i>
+                            <span>Add Recurring</span>
+                        </button>
+                        <button class="btn btn-secondary" id="newYearBtn">
+                            <i data-lucide="calendar-plus" class="icon"></i>
+                            <span>New Year</span>
+                        </button>
+                        <button class="btn btn-icon" id="importBtn" title="Import">
+                            <i data-lucide="download" class="icon"></i>
+                        </button>
+                        <button class="btn btn-icon" id="exportBtn" title="Export">
+                            <i data-lucide="upload" class="icon"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Grid Container -->
+            <div class="grid-container">
+                <table class="budget-grid" id="budgetGrid">
+                    <thead>
+                        <tr>
+                            <th class="col-date">Date</th>
+                            <th class="col-item">Item</th>
+                            <th class="col-desc">Description</th>
+                            <th class="col-category">Category</th>
+                            <th class="col-type">Type</th>
+                            <th class="col-amount">Amount</th>
+                            <th class="col-paid">Paid</th>
+                            <th class="col-balance">Daily Balance</th>
+                            <!-- Debt columns injected by JS -->
+                            <th class="col-debt-toggle">
+                                <button class="debt-toggle-btn" id="debtToggleBtn" title="Toggle Debt Columns">
+                                    <i data-lucide="columns-3" class="icon"></i>
+                                </button>
+                            </th>
+                            <th class="col-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gridBody"></tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Backdrop -->
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+
+    <!-- Starting Balance Modal -->
+    <div class="modal" id="startingBalanceModal">
+        <div class="modal-header">
+            <h2>Starting Balance</h2>
+            <button class="modal-close" data-close><i data-lucide="x" class="icon"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="startingBalanceInput">Opening Bank Balance (£)</label>
+                <input type="number" id="startingBalanceInput" step="0.01" class="form-input">
+            </div>
+            <div class="form-group">
+                <label for="asOfDateInput">As of Date</label>
+                <input type="date" id="asOfDateInput" class="form-input">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-close>Cancel</button>
+            <button class="btn btn-primary" id="saveStartingBalanceBtn">Save</button>
+        </div>
+    </div>
+
+    <!-- Quick Filter Modal -->
+    <div class="modal modal-lg" id="quickFilterModal">
+        <div class="modal-header">
+            <h2>Quick Filter</h2>
+            <button class="modal-close" data-close><i data-lucide="x" class="icon"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="filter-controls">
+                <div class="form-group">
+                    <input type="text" id="filterSearchInput" placeholder="Search by Item, Description, or Category..." class="form-input">
+                </div>
+                <div class="filter-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="filterIncludeArchived"> Include Archived
+                    </label>
+                </div>
+            </div>
+            <div class="filter-results" id="filterResults">
+                <div class="filter-summary" id="filterSummary"></div>
+                <div class="filter-table-container">
+                    <table class="filter-results-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Item</th>
+                                <th>Description</th>
+                                <th>Category</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Paid</th>
+                            </tr>
+                        </thead>
+                        <tbody id="filterResultsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Debts Modal -->
+    <div class="modal" id="debtsModal">
+        <div class="modal-header">
+            <h2>Manage Debts</h2>
+            <button class="modal-close" data-close><i data-lucide="x" class="icon"></i></button>
+        </div>
+        <div class="modal-body">
+            <p class="modal-description">Add, edit, or remove debt accounts. Keywords in descriptions will auto-reduce debts.</p>
+            <div id="debtsList" class="debts-list-container"></div>
+            <button class="btn btn-secondary" id="addDebtBtn" style="margin-top: 1rem;">
+                <i data-lucide="plus" class="icon"></i> Add Debt
+            </button>
+            <div class="debt-toggle-option" style="margin-top: 1.5rem;">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="showDebtColumnsCheck"> Show debt columns in grid
+                </label>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-close>Cancel</button>
+            <button class="btn btn-primary" id="saveDebtsBtn">Save</button>
+        </div>
+    </div>
+
+    <!-- Hide/Archive Modal -->
+    <div class="modal" id="hideArchiveModal">
+        <div class="modal-header">
+            <h2>Hide / Archive Months</h2>
+            <button class="modal-close" data-close><i data-lucide="x" class="icon"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="section">
+                <h3>Hide Months (Visual Only)</h3>
+                <p class="section-desc">Hidden months are still included in calculations.</p>
+                <div class="form-group">
+                    <label>Hide months before:</label>
+                    <select id="hideBeforeMonth" class="form-input">
+                        <option value="">Show All</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+            </div>
+            <div class="section">
+                <h3>Archive Options</h3>
+                <p class="section-desc">Archived rows are hidden but can be restored.</p>
+                <div class="archive-actions">
+                    <button class="btn btn-secondary" id="archiveBeforeMonthBtn">Archive All Before Selected Month</button>
+                    <button class="btn btn-secondary" id="unarchiveAllBtn">Restore All Archived</button>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-close>Close</button>
+            <button class="btn btn-primary" id="applyHideBtn">Apply</button>
+        </div>
+    </div>
+
+    <!-- New Year Modal -->
+    <div class="modal" id="newYearModal">
+        <div class="modal-header">
+            <h2>Create New Year</h2>
+            <button class="modal-close" data-close><i data-lucide="x" class="icon"></i></button>
+        </div>
+        <div class="modal-body">
+            <p class="modal-description">This will create next year and copy all recurring transactions across. One-off entries won't be included.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-close>Cancel</button>
+            <button class="btn btn-primary" id="createNewYearBtn">Create New Year</button>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div class="modal" id="importModal">
+        <div class="modal-header">
+            <h2>Import Data</h2>
+            <button class="modal-close" data-close><i data-lucide="x" class="icon"></i></button>
+        </div>
+        <div class="modal-body">
+            <p class="modal-description">Import a previously exported JSON file. This will replace all existing data.</p>
+            <div class="form-group">
+                <label>Select JSON file:</label>
+                <input type="file" id="importFileInput" accept=".json" class="form-input">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-close>Cancel</button>
+        </div>
+    </div>
+
+    <!-- Add Recurring Modal -->
+    <div class="modal modal-lg" id="addRecurringModal">
+        <div class="modal-header">
+            <h2><i data-lucide="repeat" class="icon"></i> Add Recurring Transaction</h2>
+            <button class="modal-close" data-close><i data-lucide="x" class="icon"></i></button>
+        </div>
+        <div class="modal-body">
+            <p class="modal-description">Create a recurring income or expense that repeats automatically.</p>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Item Name</label>
+                    <input type="text" id="recurringItem" class="form-input" placeholder="e.g., Netflix">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="recurringDescription" class="form-input" placeholder="e.g., Monthly subscription">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="recurringCategory" class="form-input">
+                        <option value="Essential">Essential</option>
+                        <option value="Regular Bill" selected>Regular Bill</option>
+                        <option value="One-off">One-off</option>
+                        <option value="Salary">Salary</option>
+                        <option value="Irregular Cost">Irregular Cost</option>
+                        <option value="Debt">Debt</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="recurringType" class="form-input">
+                        <option value="Expense" selected>Expense</option>
+                        <option value="Income">Income</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Amount (£)</label>
+                    <input type="number" id="recurringAmount" class="form-input" step="0.01" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label>Day of Month</label>
+                    <select id="recurringDay" class="form-input">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                        <option value="17">17</option>
+                        <option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                        <option value="21">21</option>
+                        <option value="22">22</option>
+                        <option value="23">23</option>
+                        <option value="24">24</option>
+                        <option value="25">25</option>
+                        <option value="26">26</option>
+                        <option value="27">27</option>
+                        <option value="28">28</option>
+                        <option value="last">Last day</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Start Month</label>
+                    <select id="recurringStartMonth" class="form-input">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>End Month</label>
+                    <select id="recurringEndMonth" class="form-input">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12" selected>December</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="recurring-preview" id="recurringPreview">
+                <h4><i data-lucide="eye" class="icon"></i> Preview</h4>
+                <div class="preview-summary" id="previewSummary"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-close>Cancel</button>
+            <button class="btn btn-primary" id="createRecurringBtn">
+                <i data-lucide="plus-circle" class="icon"></i> Create Entries
+            </button>
+        </div>
+    </div>
+
+    <!-- Edit Recurring Choice Modal -->
+    <div class="modal" id="editRecurringModal">
+        <div class="modal-header">
+            <h2><i data-lucide="edit-3" class="icon"></i> Edit Recurring Item</h2>
+            <button class="modal-close" data-close><i data-lucide="x" class="icon"></i></button>
+        </div>
+        <div class="modal-body">
+            <p class="modal-description">This appears to be a recurring transaction. How would you like to edit it?</p>
+            
+            <div class="recurring-info" id="recurringInfo"></div>
+            
+            <div class="edit-choice-buttons">
+                <button class="choice-btn" id="editThisOnlyBtn">
+                    <i data-lucide="file-edit" class="icon"></i>
+                    <span class="choice-title">Edit This One Only</span>
+                    <span class="choice-desc">Change only this specific instance</span>
+                </button>
+                <button class="choice-btn" id="editAllMatchingBtn">
+                    <i data-lucide="files" class="icon"></i>
+                    <span class="choice-title">Edit All Matching</span>
+                    <span class="choice-desc">Update all instances with same item name</span>
+                </button>
+                <button class="choice-btn" id="editFutureBtn">
+                    <i data-lucide="calendar-range" class="icon"></i>
+                    <span class="choice-title">Edit This & Future</span>
+                    <span class="choice-desc">Update this and all future instances</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Initialize Lucide icons after page load
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+        });
+    </script>
+
+    <!-- Delete Recurring Choice Modal -->
+    <div class="modal" id="deleteRecurringModal">
+        <div class="modal-header">
+            <h2><i data-lucide="trash-2" class="icon"></i> Delete Recurring Item</h2>
+            <button class="modal-close" data-close><i data-lucide="x" class="icon"></i></button>
+        </div>
+        <div class="modal-body">
+            <p class="modal-description">This appears to be a recurring transaction. How would you like to delete it?</p>
+            
+            <div class="recurring-info" id="deleteRecurringInfo"></div>
+            
+            <div class="edit-choice-buttons">
+                <button class="choice-btn" id="deleteThisOnlyBtn">
+                    <i data-lucide="file-minus" class="icon"></i>
+                    <span class="choice-title">Delete This One Only</span>
+                    <span class="choice-desc">Remove only this specific instance</span>
+                </button>
+                <button class="choice-btn" id="deleteAllRecurringBtn" style="border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.1);">
+                    <i data-lucide="trash-2" class="icon" style="color: #ef4444;"></i>
+                    <span class="choice-title" style="color: #ef4444;">Delete All Instances</span>
+                    <span class="choice-desc">Remove all occurrences of this item</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Recurring Costs Chart Modal -->
+    <div class="modal modal-lg" id="recurringCostsModal">
+        <div class="modal-header">
+            <h2><i data-lucide="pie-chart" class="icon"></i> Recurring Costs Analysis</h2>
+            <button class="modal-close" data-close><i data-lucide="x" class="icon"></i></button>
+        </div>
+        <div class="modal-body">
+            <p class="modal-description">Annual cost breakdown for recurring transactions</p>
+            <div id="recurringCostsChart" style="width: 100%; height: 400px; margin-bottom: 2rem;"></div>
+            <table class="bbp-table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Frequency</th>
+                        <th>Amount per Payment</th>
+                        <th>Annual Total</th>
+                    </tr>
+                </thead>
+                <tbody id="recurringCostsTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <!-- Calculator Modal -->
+    <div class="modal modal-lg" id="calculatorModal">
+        <div class="modal-header">
+            <h2><i data-lucide="calculator" class="icon"></i> Calculator</h2>
+            <button class="modal-close" data-close><i data-lucide="x" class="icon"></i></button>
+        </div>
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <!-- Calculator Display -->
+            <div class="calculator-display" id="calcDisplay">0</div>
+            
+            <!-- Calculator Buttons -->
+            <div class="calculator-grid">
+                <button class="calc-btn calc-fn" data-action="clear">C</button>
+                <button class="calc-btn calc-fn" data-action="backspace">⌫</button>
+                <button class="calc-btn calc-fn" data-action="percent">%</button>
+                <button class="calc-btn calc-op" data-action="/">÷</button>
+                
+                <button class="calc-btn" data-action="7">7</button>
+                <button class="calc-btn" data-action="8">8</button>
+                <button class="calc-btn" data-action="9">9</button>
+                <button class="calc-btn calc-op" data-action="*">×</button>
+                
+                <button class="calc-btn" data-action="4">4</button>
+                <button class="calc-btn" data-action="5">5</button>
+                <button class="calc-btn" data-action="6">6</button>
+                <button class="calc-btn calc-op" data-action="-">−</button>
+                
+                <button class="calc-btn" data-action="1">1</button>
+                <button class="calc-btn" data-action="2">2</button>
+                <button class="calc-btn" data-action="3">3</button>
+                <button class="calc-btn calc-op" data-action="+">+</button>
+                
+                <button class="calc-btn" data-action="0">0</button>
+                <button class="calc-btn" data-action=".">.</button>
+                <button class="calc-btn calc-eq" data-action="=" style="grid-column: span 2;">=</button>
+            </div>
+            
+            <!-- Scratchpad -->
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label style="font-weight: 500;">Scratchpad</label>
+                    <button class="btn btn-secondary btn-sm" id="clearScratchpadBtn" style="padding: 0.25rem 0.75rem; font-size: 0.875rem;">
+                        Clear
+                    </button>
+                </div>
+                <textarea id="scratchpad" 
+                    placeholder="Use this space for quick notes and calculations..."
+                    style="width: 100%; min-height: 150px; padding: 0.75rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; color: white; font-family: monospace; resize: vertical;"></textarea>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
