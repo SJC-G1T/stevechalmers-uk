@@ -38,6 +38,7 @@
         elements.newYearBtn = document.getElementById('newYearBtn');
         elements.importBtn = document.getElementById('importBtn');
         elements.exportBtn = document.getElementById('exportBtn');
+        elements.clearAllBtn = document.getElementById('clearAllBtn');
         elements.debtToggleBtn = document.getElementById('debtToggleBtn');
     }
 
@@ -66,14 +67,208 @@
         }
     }
 
+    function getDemoData() {
+        const y = new Date().getFullYear();
+        const id = (n) => 'demo_' + n;
+        const tx = (n, mo, day, item, desc, cat, type, amount, paid) => ({
+            id: id(n),
+            date: `${y}-${String(mo).padStart(2,'0')}-${String(day).padStart(2,'0')}`,
+            item, description: desc, category: cat, type, amount: String(amount), paid: paid || false, archived: false
+        });
+        const transactions = [
+            // January
+            tx(1,  1,25, 'Salary',        'Monthly salary',              'Salary',         'Income',  2800,   true),
+            tx(2,  1, 1, 'Rent',          'Monthly rent payment',        'Essential',      'Expense',  950,   true),
+            tx(3,  1, 1, 'Council Tax',   'Band C council tax',          'Essential',      'Expense',  142,   true),
+            tx(4,  1, 2, 'Electricity',   'British Gas electricity',     'Regular Bill',   'Expense',   68,   true),
+            tx(5,  1, 2, 'Gas',           'British Gas gas',             'Regular Bill',   'Expense',   54,   true),
+            tx(6,  1, 3, 'Broadband',     'Sky Broadband',               'Regular Bill',   'Expense',   40,   true),
+            tx(7,  1, 4, 'Netflix',       'Netflix subscription',        'Regular Bill',   'Expense',   18,   true),
+            tx(8,  1, 4, 'Spotify',       'Spotify Premium',             'Regular Bill',   'Expense',   11,   true),
+            tx(9,  1, 5, 'Gym',           'PureGym monthly membership',  'Regular Bill',   'Expense',   24,   true),
+            tx(10, 1,15, 'Credit Card',   'Barclaycard minimum payment', 'Debt',           'Expense',  150,   true),
+            tx(11, 1,15, 'Car Loan',      'Car finance monthly',         'Debt',           'Expense',  220,   true),
+            tx(12, 1,20, 'Groceries',     'Tesco weekly shop x4',        'Essential',      'Expense',  220,   true),
+            tx(13, 1,22, 'Petrol',        'Shell garage',                'Irregular Cost', 'Expense',   65,   true),
+            tx(14, 1,28, 'Dining out',    'Nandos & pub',                'One-off',        'Expense',   48,   true),
+            // February
+            tx(15, 2,25, 'Salary',        'Monthly salary',              'Salary',         'Income',  2800,   true),
+            tx(16, 2, 1, 'Rent',          'Monthly rent payment',        'Essential',      'Expense',  950,   true),
+            tx(17, 2, 1, 'Council Tax',   'Band C council tax',          'Essential',      'Expense',  142,   true),
+            tx(18, 2, 2, 'Electricity',   'British Gas electricity',     'Regular Bill',   'Expense',   72,   true),
+            tx(19, 2, 2, 'Gas',           'British Gas gas',             'Regular Bill',   'Expense',   61,   true),
+            tx(20, 2, 3, 'Broadband',     'Sky Broadband',               'Regular Bill',   'Expense',   40,   true),
+            tx(21, 2, 4, 'Netflix',       'Netflix subscription',        'Regular Bill',   'Expense',   18,   true),
+            tx(22, 2, 4, 'Spotify',       'Spotify Premium',             'Regular Bill',   'Expense',   11,   true),
+            tx(23, 2, 5, 'Gym',           'PureGym monthly membership',  'Regular Bill',   'Expense',   24,   true),
+            tx(24, 2,15, 'Credit Card',   'Barclaycard minimum payment', 'Debt',           'Expense',  150,   true),
+            tx(25, 2,15, 'Car Loan',      'Car finance monthly',         'Debt',           'Expense',  220,   true),
+            tx(26, 2,20, 'Groceries',     'Tesco weekly shop x4',        'Essential',      'Expense',  220,   true),
+            tx(27, 2,14, 'Valentines',    'Dinner & flowers',            'One-off',        'Expense',   85,   true),
+            tx(28, 2,22, 'Petrol',        'Shell garage',                'Irregular Cost', 'Expense',   65,   true),
+            // March
+            tx(29, 3,25, 'Salary',        'Monthly salary',              'Salary',         'Income',  2800,   true),
+            tx(30, 3, 1, 'Rent',          'Monthly rent payment',        'Essential',      'Expense',  950,   true),
+            tx(31, 3, 1, 'Council Tax',   'Band C council tax',          'Essential',      'Expense',  142,   true),
+            tx(32, 3, 2, 'Electricity',   'British Gas electricity',     'Regular Bill',   'Expense',   65,   true),
+            tx(33, 3, 2, 'Gas',           'British Gas gas',             'Regular Bill',   'Expense',   50,   true),
+            tx(34, 3, 3, 'Broadband',     'Sky Broadband',               'Regular Bill',   'Expense',   40,   true),
+            tx(35, 3, 4, 'Netflix',       'Netflix subscription',        'Regular Bill',   'Expense',   18,   true),
+            tx(36, 3, 4, 'Spotify',       'Spotify Premium',             'Regular Bill',   'Expense',   11,   true),
+            tx(37, 3, 5, 'Gym',           'PureGym monthly membership',  'Regular Bill',   'Expense',   24,   true),
+            tx(38, 3,15, 'Credit Card',   'Barclaycard minimum payment', 'Debt',           'Expense',  150,   true),
+            tx(39, 3,15, 'Car Loan',      'Car finance monthly',         'Debt',           'Expense',  220,   true),
+            tx(40, 3,19, 'Groceries',     'Tesco weekly shop x4',        'Essential',      'Expense',  220,   true),
+            tx(41, 3,28, 'Car Service',   'Annual car service & MOT',    'One-off',        'Expense',  320,   true),
+            tx(42, 3,22, 'Petrol',        'Shell garage',                'Irregular Cost', 'Expense',   65,   true),
+            // April - present month (mix of paid and unpaid)
+            tx(43, 4,25, 'Salary',        'Monthly salary',              'Salary',         'Income',  2800,   false),
+            tx(44, 4, 1, 'Rent',          'Monthly rent payment',        'Essential',      'Expense',  950,   true),
+            tx(45, 4, 1, 'Council Tax',   'Band C council tax',          'Essential',      'Expense',  142,   true),
+            tx(46, 4, 2, 'Electricity',   'British Gas electricity',     'Regular Bill',   'Expense',   58,   true),
+            tx(47, 4, 2, 'Gas',           'British Gas gas',             'Regular Bill',   'Expense',   42,   true),
+            tx(48, 4, 3, 'Broadband',     'Sky Broadband',               'Regular Bill',   'Expense',   40,   true),
+            tx(49, 4, 4, 'Netflix',       'Netflix subscription',        'Regular Bill',   'Expense',   18,   true),
+            tx(50, 4, 4, 'Spotify',       'Spotify Premium',             'Regular Bill',   'Expense',   11,   true),
+            tx(51, 4, 5, 'Gym',           'PureGym monthly membership',  'Regular Bill',   'Expense',   24,   true),
+            tx(52, 4,15, 'Credit Card',   'Barclaycard minimum payment', 'Debt',           'Expense',  150,   false),
+            tx(53, 4,15, 'Car Loan',      'Car finance monthly',         'Debt',           'Expense',  220,   false),
+            tx(54, 4,19, 'Groceries',     'Tesco weekly shop x4',        'Essential',      'Expense',  220,   false),
+            tx(55, 4,22, 'Petrol',        'Shell garage',                'Irregular Cost', 'Expense',   65,   false),
+            // Future months (all unpaid)
+            tx(56, 5,25, 'Salary',        'Monthly salary',              'Salary',         'Income',  2800,   false),
+            tx(57, 5, 1, 'Rent',          'Monthly rent payment',        'Essential',      'Expense',  950,   false),
+            tx(58, 5, 1, 'Council Tax',   'Band C council tax',          'Essential',      'Expense',  142,   false),
+            tx(59, 5, 2, 'Electricity',   'British Gas electricity',     'Regular Bill',   'Expense',   55,   false),
+            tx(60, 5, 2, 'Gas',           'British Gas gas',             'Regular Bill',   'Expense',   38,   false),
+            tx(61, 5, 3, 'Broadband',     'Sky Broadband',               'Regular Bill',   'Expense',   40,   false),
+            tx(62, 5, 4, 'Netflix',       'Netflix subscription',        'Regular Bill',   'Expense',   18,   false),
+            tx(63, 5, 4, 'Spotify',       'Spotify Premium',             'Regular Bill',   'Expense',   11,   false),
+            tx(64, 5, 5, 'Gym',           'PureGym monthly membership',  'Regular Bill',   'Expense',   24,   false),
+            tx(65, 5,15, 'Credit Card',   'Barclaycard minimum payment', 'Debt',           'Expense',  150,   false),
+            tx(66, 5,15, 'Car Loan',      'Car finance monthly',         'Debt',           'Expense',  220,   false),
+            tx(67, 5,20, 'Groceries',     'Tesco weekly shop x4',        'Essential',      'Expense',  220,   false),
+            tx(68, 5,22, 'Petrol',        'Shell garage',                'Irregular Cost', 'Expense',   65,   false),
+            tx(69, 6,25, 'Salary',        'Monthly salary',              'Salary',         'Income',  2800,   false),
+            tx(70, 6, 1, 'Rent',          'Monthly rent payment',        'Essential',      'Expense',  950,   false),
+            tx(71, 6, 1, 'Council Tax',   'Band C council tax',          'Essential',      'Expense',  142,   false),
+            tx(72, 6, 2, 'Electricity',   'British Gas electricity',     'Regular Bill',   'Expense',   52,   false),
+            tx(73, 6, 2, 'Gas',           'British Gas gas',             'Regular Bill',   'Expense',   34,   false),
+            tx(74, 6, 3, 'Broadband',     'Sky Broadband',               'Regular Bill',   'Expense',   40,   false),
+            tx(75, 6, 4, 'Netflix',       'Netflix subscription',        'Regular Bill',   'Expense',   18,   false),
+            tx(76, 6, 4, 'Spotify',       'Spotify Premium',             'Regular Bill',   'Expense',   11,   false),
+            tx(77, 6, 5, 'Gym',           'PureGym monthly membership',  'Regular Bill',   'Expense',   24,   false),
+            tx(78, 6,15, 'Credit Card',   'Barclaycard minimum payment', 'Debt',           'Expense',  150,   false),
+            tx(79, 6,15, 'Car Loan',      'Car finance monthly',         'Debt',           'Expense',  220,   false),
+            tx(80, 6,20, 'Groceries',     'Tesco weekly shop x4',        'Essential',      'Expense',  220,   false),
+            tx(81, 6,22, 'Petrol',        'Shell garage',                'Irregular Cost', 'Expense',   65,   false),
+            tx(82, 6,25, 'Holiday',       'Summer holiday deposit',      'One-off',        'Expense',  600,   false),
+            tx(83, 7,25, 'Salary',        'Monthly salary',              'Salary',         'Income',  2800,   false),
+            tx(84, 7, 1, 'Rent',          'Monthly rent payment',        'Essential',      'Expense',  950,   false),
+            tx(85, 7, 1, 'Council Tax',   'Band C council tax',          'Essential',      'Expense',  142,   false),
+            tx(86, 7, 2, 'Electricity',   'British Gas electricity',     'Regular Bill',   'Expense',   48,   false),
+            tx(87, 7, 2, 'Gas',           'British Gas gas',             'Regular Bill',   'Expense',   30,   false),
+            tx(88, 7, 3, 'Broadband',     'Sky Broadband',               'Regular Bill',   'Expense',   40,   false),
+            tx(89, 7, 4, 'Netflix',       'Netflix subscription',        'Regular Bill',   'Expense',   18,   false),
+            tx(90, 7, 4, 'Spotify',       'Spotify Premium',             'Regular Bill',   'Expense',   11,   false),
+            tx(91, 7, 5, 'Gym',           'PureGym monthly membership',  'Regular Bill',   'Expense',   24,   false),
+            tx(92, 7,15, 'Credit Card',   'Barclaycard minimum payment', 'Debt',           'Expense',  150,   false),
+            tx(93, 7,15, 'Car Loan',      'Car finance monthly',         'Debt',           'Expense',  220,   false),
+            tx(94, 7,20, 'Groceries',     'Tesco weekly shop x4',        'Essential',      'Expense',  220,   false),
+            tx(95, 7,22, 'Petrol',        'Shell garage',                'Irregular Cost', 'Expense',   65,   false),
+            tx(96, 8,25, 'Salary',        'Monthly salary',              'Salary',         'Income',  2800,   false),
+            tx(97, 8, 1, 'Rent',          'Monthly rent payment',        'Essential',      'Expense',  950,   false),
+            tx(98, 8, 1, 'Council Tax',   'Band C council tax',          'Essential',      'Expense',  142,   false),
+            tx(99, 8, 2, 'Electricity',   'British Gas electricity',     'Regular Bill',   'Expense',   50,   false),
+            tx(100,8, 2, 'Gas',           'British Gas gas',             'Regular Bill',   'Expense',   32,   false),
+            tx(101,8, 3, 'Broadband',     'Sky Broadband',               'Regular Bill',   'Expense',   40,   false),
+            tx(102,8, 4, 'Netflix',       'Netflix subscription',        'Regular Bill',   'Expense',   18,   false),
+            tx(103,8, 4, 'Spotify',       'Spotify Premium',             'Regular Bill',   'Expense',   11,   false),
+            tx(104,8, 5, 'Gym',           'PureGym monthly membership',  'Regular Bill',   'Expense',   24,   false),
+            tx(105,8,15, 'Credit Card',   'Barclaycard minimum payment', 'Debt',           'Expense',  150,   false),
+            tx(106,8,15, 'Car Loan',      'Car finance monthly',         'Debt',           'Expense',  220,   false),
+            tx(107,8,20, 'Groceries',     'Tesco weekly shop x4',        'Essential',      'Expense',  220,   false),
+            tx(108,8,22, 'Petrol',        'Shell garage',                'Irregular Cost', 'Expense',   65,   false),
+            tx(109,9,25, 'Salary',        'Monthly salary',              'Salary',         'Income',  2800,   false),
+            tx(110,9, 1, 'Rent',          'Monthly rent payment',        'Essential',      'Expense',  950,   false),
+            tx(111,9, 1, 'Council Tax',   'Band C council tax',          'Essential',      'Expense',  142,   false),
+            tx(112,9, 2, 'Electricity',   'British Gas electricity',     'Regular Bill',   'Expense',   55,   false),
+            tx(113,9, 2, 'Gas',           'British Gas gas',             'Regular Bill',   'Expense',   36,   false),
+            tx(114,9, 3, 'Broadband',     'Sky Broadband',               'Regular Bill',   'Expense',   40,   false),
+            tx(115,9, 4, 'Netflix',       'Netflix subscription',        'Regular Bill',   'Expense',   18,   false),
+            tx(116,9, 4, 'Spotify',       'Spotify Premium',             'Regular Bill',   'Expense',   11,   false),
+            tx(117,9, 5, 'Gym',           'PureGym monthly membership',  'Regular Bill',   'Expense',   24,   false),
+            tx(118,9,15, 'Credit Card',   'Barclaycard minimum payment', 'Debt',           'Expense',  150,   false),
+            tx(119,9,15, 'Car Loan',      'Car finance monthly',         'Debt',           'Expense',  220,   false),
+            tx(120,9,20, 'Groceries',     'Tesco weekly shop x4',        'Essential',      'Expense',  220,   false),
+            tx(121,9,22, 'Petrol',        'Shell garage',                'Irregular Cost', 'Expense',   65,   false),
+            tx(122,10,25,'Salary',        'Monthly salary',              'Salary',         'Income',  2800,   false),
+            tx(123,10, 1,'Rent',          'Monthly rent payment',        'Essential',      'Expense',  950,   false),
+            tx(124,10, 1,'Council Tax',   'Band C council tax',          'Essential',      'Expense',  142,   false),
+            tx(125,10, 2,'Electricity',   'British Gas electricity',     'Regular Bill',   'Expense',   62,   false),
+            tx(126,10, 2,'Gas',           'British Gas gas',             'Regular Bill',   'Expense',   44,   false),
+            tx(127,10, 3,'Broadband',     'Sky Broadband',               'Regular Bill',   'Expense',   40,   false),
+            tx(128,10, 4,'Netflix',       'Netflix subscription',        'Regular Bill',   'Expense',   18,   false),
+            tx(129,10, 4,'Spotify',       'Spotify Premium',             'Regular Bill',   'Expense',   11,   false),
+            tx(130,10, 5,'Gym',           'PureGym monthly membership',  'Regular Bill',   'Expense',   24,   false),
+            tx(131,10,15,'Credit Card',   'Barclaycard minimum payment', 'Debt',           'Expense',  150,   false),
+            tx(132,10,15,'Car Loan',      'Car finance monthly',         'Debt',           'Expense',  220,   false),
+            tx(133,10,20,'Groceries',     'Tesco weekly shop x4',        'Essential',      'Expense',  220,   false),
+            tx(134,10,22,'Petrol',        'Shell garage',                'Irregular Cost', 'Expense',   65,   false),
+            tx(135,11,25,'Salary',        'Monthly salary',              'Salary',         'Income',  2800,   false),
+            tx(136,11, 1,'Rent',          'Monthly rent payment',        'Essential',      'Expense',  950,   false),
+            tx(137,11, 1,'Council Tax',   'Band C council tax',          'Essential',      'Expense',  142,   false),
+            tx(138,11, 2,'Electricity',   'British Gas electricity',     'Regular Bill',   'Expense',   70,   false),
+            tx(139,11, 2,'Gas',           'British Gas gas',             'Regular Bill',   'Expense',   52,   false),
+            tx(140,11, 3,'Broadband',     'Sky Broadband',               'Regular Bill',   'Expense',   40,   false),
+            tx(141,11, 4,'Netflix',       'Netflix subscription',        'Regular Bill',   'Expense',   18,   false),
+            tx(142,11, 4,'Spotify',       'Spotify Premium',             'Regular Bill',   'Expense',   11,   false),
+            tx(143,11, 5,'Gym',           'PureGym monthly membership',  'Regular Bill',   'Expense',   24,   false),
+            tx(144,11,15,'Credit Card',   'Barclaycard minimum payment', 'Debt',           'Expense',  150,   false),
+            tx(145,11,15,'Car Loan',      'Car finance monthly',         'Debt',           'Expense',  220,   false),
+            tx(146,11,20,'Groceries',     'Tesco weekly shop x4',        'Essential',      'Expense',  220,   false),
+            tx(147,11,22,'Petrol',        'Shell garage',                'Irregular Cost', 'Expense',   65,   false),
+            tx(148,12,25,'Salary',        'Monthly salary',              'Salary',         'Income',  2800,   false),
+            tx(149,12,24,'Xmas Bonus',    'Annual performance bonus',    'Salary',         'Income',   500,   false),
+            tx(150,12, 1,'Rent',          'Monthly rent payment',        'Essential',      'Expense',  950,   false),
+            tx(151,12, 1,'Council Tax',   'Band C council tax',          'Essential',      'Expense',  142,   false),
+            tx(152,12, 2,'Electricity',   'British Gas electricity',     'Regular Bill',   'Expense',   75,   false),
+            tx(153,12, 2,'Gas',           'British Gas gas',             'Regular Bill',   'Expense',   60,   false),
+            tx(154,12, 3,'Broadband',     'Sky Broadband',               'Regular Bill',   'Expense',   40,   false),
+            tx(155,12, 4,'Netflix',       'Netflix subscription',        'Regular Bill',   'Expense',   18,   false),
+            tx(156,12, 4,'Spotify',       'Spotify Premium',             'Regular Bill',   'Expense',   11,   false),
+            tx(157,12, 5,'Gym',           'PureGym monthly membership',  'Regular Bill',   'Expense',   24,   false),
+            tx(158,12,15,'Credit Card',   'Barclaycard minimum payment', 'Debt',           'Expense',  150,   false),
+            tx(159,12,15,'Car Loan',      'Car finance monthly',         'Debt',           'Expense',  220,   false),
+            tx(160,12,20,'Groceries',     'Christmas food shop',         'Essential',      'Expense',  320,   false),
+            tx(161,12,22,'Christmas',     'Gifts & celebrations',        'One-off',        'Expense',  450,   false),
+            tx(162,12,22,'Petrol',        'Shell garage',                'Irregular Cost', 'Expense',   65,   false),
+        ];
+        const settings = {
+            startingBalance: '1250',
+            asOfDate: `${y}-01-01`,
+            debts: JSON.stringify([
+                { id: 'barclaycard', name: 'Barclaycard', amount: 2400, keyword: 'barclaycard' },
+                { id: 'car_loan',    name: 'Car Loan',    amount: 6800, keyword: 'car finance' }
+            ]),
+            currentYear: String(y),
+            hiddenMonths: JSON.stringify([]),
+            debtsExpanded: 'false',
+            scratchpad: ''
+        };
+        return { transactions, settings };
+    }
+
     function loadData() {
         const stored = loadFromStorage();
         if (stored) {
             state.transactions = stored.transactions || [];
             state.settings = stored.settings || {};
         } else {
-            state.transactions = [];
-            state.settings = {};
+            const demo = getDemoData();
+            state.transactions = demo.transactions;
+            state.settings = demo.settings;
+            saveToStorage();
         }
         state.currentYear = state.settings.currentYear || new Date().getFullYear().toString();
         state.hiddenMonths = state.settings.hiddenMonths ? JSON.parse(state.settings.hiddenMonths) : [];
@@ -1292,6 +1487,28 @@
         saveScratchpad();
     }
 
+    // --- Clear All ---
+
+    function handleClearAll() {
+        if (!confirm('Clear all data and reset to a blank tracker?\n\nThis cannot be undone.')) return;
+        localStorage.removeItem(STORAGE_KEY);
+        state.transactions = [];
+        state.settings = {};
+        state.currentYear = new Date().getFullYear().toString();
+        state.hiddenMonths = [];
+        state.debtsExpanded = false;
+        state.undoStack = [];
+        state.redoStack = [];
+        saveSettings();
+        renderYearSelector();
+        renderBalanceToday();
+        renderYearEndNetWorth();
+        renderDebtHeaders();
+        renderGrid();
+        updateUndoRedoButtons();
+        showToast('All data cleared — ready to start fresh');
+    }
+
     // --- Keyboard shortcuts ---
 
     function handleKeydown(e) {
@@ -1326,6 +1543,7 @@
         elements.newYearBtn.addEventListener('click', openNewYearModal);
         elements.importBtn.addEventListener('click', openImportModal);
         elements.exportBtn.addEventListener('click', handleExport);
+        if (elements.clearAllBtn) elements.clearAllBtn.addEventListener('click', handleClearAll);
         elements.undoBtn.addEventListener('click', handleUndo);
         elements.redoBtn.addEventListener('click', handleRedo);
 
